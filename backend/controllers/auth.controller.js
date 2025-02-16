@@ -1,82 +1,80 @@
 import User from "../models/user.model.js"
 import jwt from "jsonwebtoken"
 import { redis } from "../config/redis.js"
+import  {gatewayTokenGenerator}  from "../middleware/gatewayTokenGenerator.js";
+import dotenv from "dotenv"
+import axios from "axios";
 
 const generateTokens = (userId) => {
-    const accessToken = jwt.sign({userId}, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "15m",
-    })
-    const refreshToken = jwt.sign({userId}, process.env.REFRESH_TOKEN_SECRET, {
-        expiresIn: "7d",
-    })
+  const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: "15m",
+  });
 
-    return {accessToken, refreshToken}
-}
+  const refreshToken = jwt.sign({ userId }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d",
+  });
 
-const storeRefreshToken = async(userId, refreshToken) =>{
-    await redis.set(`refresh_token:${userId}`, refreshToken,"EX",7 * 24 * 60 * 60)
-}
+  return { accessToken, refreshToken };
+};
 
-const setCookies = (res, accessToken, refreshToken) =>{
-    res.cookie("accessToken", accessToken, {
-        httpOnly: true, 
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 15 * 60 * 1000,
-    })
-    res.cookie("refreshToken", refreshToken, {
-        httpOnly: true, 
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-    })
-}
+const storeRefreshToken = async (userId, refreshToken) => {
+  await redis.set(
+    `refresh_token:${userId}`,
+    refreshToken,
+    "EX",
+    7 * 24 * 60 * 60
+  ); // 7days
+};
 
-export const signup = async (req, res) =>{
-    const { name, email, password} = req.body;
-    try {
-        const userExists = await User.findOne({ email });
+const setCookies = (res, accessToken, refreshToken) => {
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true, // prevent XSS attacks, cross site scripting attack
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict", // prevents CSRF attack, cross-site request forgery attack
+    maxAge: 15 * 60 * 1000, // 15 minutes
+  });
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true, // prevent XSS attacks, cross site scripting attack
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict", // prevents CSRF attack, cross-site request forgery attack
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+};
 
-        if(userExists){
-            return res.status(400).json({ message: "User already exists"})
-        }
-    
-        const user = await User.create({name, email, password})
+export const signup = async (req, res) => {
+  const { email, password, name } = req.body;
+  try {
+    const userExists = await User.findOne({ email });
 
-        // authenticate
-        const {accessToken, refreshToken} = generateTokens(user._id)
-        await storeRefreshToken(user._id, refreshToken)
-
-        setCookies(res, accessToken, refreshToken)
-        
-        return res.status(201).json({
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        })
-    } catch (error) {
-        res.status(500).json({ message: error.message })
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
     }
-}
+    const user = await User.create({ name, email, password });
 
+    // authenticate
+    const { accessToken, refreshToken } = generateTokens(user._id);
+    await storeRefreshToken(user._id, refreshToken);
 
-export const logout = async (req, res) =>{
-    try {
-        const refreshToken = req.cookies.refreshToken
-        if(refreshToken) {
-            const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET)
-            await redis.del(`refresh_token:${decoded.userId}`)
-        }
+    setCookies(res, accessToken, refreshToken);
 
-        res.clearCookie("accessToken")
-        res.clearCookie("refreshToken")
-        res.json({ message: "Logged out successfully!"})
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message}) 
-    }
-}
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (error) {
+    console.log("Error in signup controller", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
 
+  const token = gatewayTokenGenerator();
+  const response = await axios.get(`${process.env.API_GATEWAY_URL}/admin/get-accounts`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  console.log(response.data)
 
 export const login = async (req, res) => {
   try {
@@ -103,7 +101,27 @@ export const login = async (req, res) => {
   }
 };
 
+export const logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+      const decoded = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+      await redis.del(`refresh_token:${decoded.userId}`);
+    }
 
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in logout controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// this will refresh the access token
 export const refreshToken = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
@@ -139,10 +157,10 @@ export const refreshToken = async (req, res) => {
   }
 };
 
-export const getProfile = async (req, res) =>{
-    try {
-        res.json(req.user)
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message })
-    }
-}
+export const getProfile = async (req, res) => {
+  try {
+    res.json(req.user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};

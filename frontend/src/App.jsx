@@ -19,6 +19,8 @@ import PurchaseSuccessPage from "./pages/PurchaseSuccessPage"
 import PurchaseCancelPage from "./pages/PurchaseCancelPage"
 import { SidebarProvider } from "./components/SidebarContext"
 import ProductPage from "./pages/ProductPage"
+import CustomerOrderPage from "./pages/CustomerOrderPage"
+import MyPurchasePage from "./pages/MyPurchasePage"
 
 
 
@@ -49,15 +51,19 @@ function App() {
           <SidebarProvider>
               {!isAdmin && (<Navbar/>)}
                 <Routes>
-                  <Route path="/" element={<HomePage/>} />
                   <Route path="/signup" element={!user ? <SignUpPage/> : <Navigate to='/' />} />
                   <Route path="/login" element={!user ? <LoginPage/> :  <Navigate to={isAdmin ? "/dashboard" : "/"}/>} />
+                  <Route path="/" element={<HomePage/>} />
+
                   <Route path="/dashboard" element={user?.role === "admin" ? <DashboardPage/> : <Navigate to='/' />} />
                   <Route path="/product" element={user?.role === "admin" ? <ProductPage/> : <Navigate to='/' />} />
+                  <Route path="/orders" element={user?.role === "admin" ? <CustomerOrderPage/> : <Navigate to='/' />} />
+
                   <Route path='/category/:category' element={<CategoryPage />} />
                   <Route path='/cart' element={user ? <CartPage /> : <Navigate to='/login' />} />
                   <Route path='/purchase-success' element={user ? <PurchaseSuccessPage /> : <Navigate to='/login' />} />
                   <Route path='/purchase-cancel' element={user ? <PurchaseCancelPage /> : <Navigate to='/login' />} />
+                  <Route path='/purchasePage' element={user ? <MyPurchasePage /> : <Navigate to='/login' />} />
                 </Routes>
               <Toaster/>
           </SidebarProvider>

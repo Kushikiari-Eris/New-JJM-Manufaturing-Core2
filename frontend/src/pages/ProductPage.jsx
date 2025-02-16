@@ -12,6 +12,8 @@ const ProductPage = () => {
 	 	fetchAllProducts();
 	}, [fetchAllProducts]);
 
+  
+
   return (
     <SidebarProvider>
       <div className="flex">

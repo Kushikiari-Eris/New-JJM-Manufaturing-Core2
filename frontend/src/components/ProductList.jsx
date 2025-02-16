@@ -5,10 +5,12 @@ import { useState } from "react";
 import Modal from "./CreateProductForm.jsx";
 
 const ProductsList = () => {
-	const { deleteProduct, toggleFeaturedProduct, products } = useProductStore();
+	const { deleteProduct, toggleFeaturedProduct, products, loading } = useProductStore();
 	const [open, setOpen] = useState(false)
 
-	
+	if (loading) {
+		return <div>Loading...</div>;
+	}
 	
 	return (
 	<>

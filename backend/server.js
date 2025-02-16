@@ -10,6 +10,9 @@ import cartRoutes from './routes/cart.routes.js'
 import couponRoutes from './routes/coupon.routes.js'
 import paymentRoutes from './routes/payment.routes.js'
 import analyticsRoutes from './routes/analytics.routes.js'
+import orderRoutes from './routes/order.routes.js'
+import orderTrackerRoutes from './routes/orderTracker.routes.js'
+
 
 dotenv.config()
 connectDb()
@@ -26,7 +29,12 @@ app.use('/api/cart', cartRoutes)
 app.use('/api/coupons', couponRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/analytics', analyticsRoutes)
+app.use('/api/orders', orderRoutes)
+app.use('/api/orderTracker', orderTrackerRoutes)
 
 app.listen(PORT, () =>{
     console.log("Server Starting on " + PORT)
 })
+
+
+

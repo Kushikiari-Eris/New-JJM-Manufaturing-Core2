@@ -21,19 +21,19 @@ const userSchema = new mongoose.Schema ({
     cartItems: [
         {
             quantity: {
-                type: String,
-                default: 1
+                type: Number,
+                default: 1,
             },
             product: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "Product"
+                ref: "Product",
             }
         }
     ],
     role: {
         type: String,
-        enum: ["customer", "admin"],
-        default: "customer"
+        enum: ["customer", "admin", "auditor", "superAdmin"],
+        default: "customer",
     }
 }, {
     timestamps: true
