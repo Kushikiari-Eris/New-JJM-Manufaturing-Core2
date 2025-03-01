@@ -4,6 +4,7 @@ import { redis } from "../config/redis.js"
 import  {gatewayTokenGenerator}  from "../middleware/gatewayTokenGenerator.js";
 import dotenv from "dotenv"
 import axios from "axios";
+import bcrypt from 'bcryptjs'
 
 const generateTokens = (userId) => {
   const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -41,6 +42,51 @@ const setCookies = (res, accessToken, refreshToken) => {
   });
 };
 
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Fetch accounts from API Gateway
+    const token = gatewayTokenGenerator();
+    const { data: apiAccounts } = await axios.get(
+      `${process.env.API_GATEWAY_URL}/admin/get-accounts`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    // Search in local database
+    let user = await User.findOne({ email });
+
+    // Search in API Gateway accounts if not found in DB
+    if (!user) {
+      user = apiAccounts.find((account) => account.email === email);
+    }
+
+    if (user) {
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
+      if (passwordMatch) {
+        const { accessToken, refreshToken } = generateTokens(user._id);
+        await storeRefreshToken(user._id, refreshToken);
+        setCookies(res, accessToken, refreshToken);
+
+        return res.json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        });
+      }
+    }
+
+    res.status(400).json({ message: "Invalid email or password" });
+  } catch (error) {
+    console.error("Error in login controller:", error.message);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 export const signup = async (req, res) => {
   const { email, password, name } = req.body;
   try {
@@ -69,37 +115,7 @@ export const signup = async (req, res) => {
   }
 };
 
-  const token = gatewayTokenGenerator();
-  const response = await axios.get(`${process.env.API_GATEWAY_URL}/admin/get-accounts`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
 
-  console.log(response.data)
-
-export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-
-    if (user && (await user.comparePassword(password))) {
-      const { accessToken, refreshToken } = generateTokens(user._id);
-      await storeRefreshToken(user._id, refreshToken);
-      setCookies(res, accessToken, refreshToken);
-
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      });
-    } else {
-      res.status(400).json({ message: "Invalid email or password" });
-    }
-  } catch (error) {
-    console.log("Error in login controller", error.message);
-    res.status(500).json({ message: error.message });
-  }
-};
 
 export const logout = async (req, res) => {
   try {

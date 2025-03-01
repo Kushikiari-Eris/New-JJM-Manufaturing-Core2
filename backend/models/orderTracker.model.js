@@ -8,7 +8,7 @@ const orderTrackerSchema = new mongoose.Schema({
   },
   orderStatus: {
     type: String,
-    enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
+    enum: ["Pending", "Placed Order", "Processing", "Order Shipped", "Order Delivered"],
     default: "Pending",
   },
   updatedAt: { type: Date, default: Date.now },

@@ -31,6 +31,10 @@ const orderSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    subTotal: {
+      type: String,
+      required: true
+    },
     shippingFee: {
       type: Number,
       required: true,
@@ -43,7 +47,12 @@ const orderSchema = new mongoose.Schema(
     },
     stripeSessionId: {
       type: String,
-      unique: true,
+      default: null, // Allow it to be null
+      sparse: true, // Prevents uniqueness issues with multiple null values
+    },
+    paymentMethod: {
+      type: String,
+      required: true,
     },
     shippingAddress: {
       name: { type: String, required: true },
@@ -52,6 +61,7 @@ const orderSchema = new mongoose.Schema(
       state: { type: String },
       postal_code: { type: String, required: true },
       country: { type: String, required: true },
+      phone:{ type: String, required: true }
     },
     status: {
       type: String,

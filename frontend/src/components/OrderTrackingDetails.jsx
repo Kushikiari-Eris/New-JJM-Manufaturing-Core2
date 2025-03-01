@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
-import { useOrderStore } from "../stores/useOrderStore";  // Adjust path as necessary
-import { X } from "lucide-react";
+import { useOrderStore } from "../stores/useOrderStore"; 
 
-const statusSteps = ["Pending", "Processing", "Shipped", "Delivered"];
+const statusSteps = ["Pending", "Placed Order", "Processing", "Order Shipped", "Order Delivered"];
 
 const OrderTrackingDetails = ({ orderId, onClose }) => {
   const { orderTracker = [], fetchOrderStatus, updateOrderStatus } = useOrderStore();
@@ -29,7 +28,7 @@ const OrderTrackingDetails = ({ orderId, onClose }) => {
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative"
+          className="bg-white p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow relative"
         >
           <h2 className="text-2xl font-semibold mb-4 text-gray-800 text-center sm:text-left">
             Order Tracking
@@ -49,7 +48,7 @@ const OrderTrackingDetails = ({ orderId, onClose }) => {
               </div>
 
               {/* Stepper UI */}
-              <ol className="flex flex-wrap justify-center sm:justify-start w-full space-y-4 sm:space-x-8 sm:space-y-0 rtl:space-x-reverse">
+              <ol className="flex flex-wrap justify-center sm:justify-center w-full space-y-4 sm:space-x-8 sm:space-y-0 rtl:space-x-reverse">
                 {statusSteps.map((step, index) => (
                   <li
                     key={step}
@@ -100,7 +99,6 @@ const OrderTrackingDetails = ({ orderId, onClose }) => {
           )}
         </div>
       </div>
-
     </>
   );
 };

@@ -6,12 +6,16 @@ import CartItem from "../components/CartItem";
 import { ShoppingCart } from "lucide-react";
 import OrderSummary from "../components/OrderSummary";
 import GiftCouponCard from "../components/GiftCouponCard";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const CartPage = () => {
-	const { cart } = useCartStore();
+	const { cart, loading} = useCartStore();
 
+	if (loading) {
+        return <LoadingSpinner/>
+    }
 	return (
-		<div className='py-8 md:py-28'>
+		<div className='py-8 mb-28 md:py-28'>
 			<div className='mx-auto max-w-screen-xl px-4 2xl:px-0'>
 				<div className='mt-6 sm:mt-8 md:gap-6 lg:flex lg:items-start xl:gap-8'>
 					<motion.div

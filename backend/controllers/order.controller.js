@@ -1,17 +1,35 @@
 import Order from "../models/order.model.js";
 
 export const fetchAllOrder = async (req, res) => {
-    try {
-        const order = await Order.find()
-          .populate("user", "email") // Fetch user and include only email
-          .populate("products.product", "name image description");
-          
-        res.json(order)
-    } catch (error) {
-        console.log("Failed to fetch all orders", error.message)
-        res.status(500).json({ message: "Server Error", error: error.message})
+  try {
+    // Ensure req.user exists (you need authentication middleware)
+    const userId = req.user?._id;
+    const userRole = req.user?.role; // Assuming role is stored in user object
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
-}
+
+    let orders;
+    if (userRole === "admin") {
+      // Admin can fetch all orders
+      orders = await Order.find()
+        .populate("user", "email")
+        .populate("products.product", "name image description");
+    } else {
+      // Regular users can only fetch their own orders
+      orders = await Order.find({ user: userId })
+        .populate("user", "email")
+        .populate("products.product", "name image description");
+    }
+
+    res.json(orders);
+  } catch (error) {
+    console.error("Failed to fetch orders", error.message);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
 
 export const fetchOrderById = async (req, res) => {
     try {
@@ -36,9 +54,8 @@ export const updateOrderStatus = async (req, res) => {
     const validStatuses = [
       "Pending",
       "Confirmed",
-      "Shipped",
-      "Delivered",
       "Cancelled",
+      "Refunded"
     ];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: "Invalid status" });

@@ -3,7 +3,7 @@ import Coupon from "../models/coupon.model.js"
 import Order from "../models/order.model.js"
 import OrderTracker from "../models/orderTracker.model.js";
 
-export const createCheckoutSession = async (req, res) => {
+export const stripeCheckoutSession = async (req, res) => {
   try {
     const { products, couponCode, shippingAddress } = req.body;
 
@@ -11,15 +11,17 @@ export const createCheckoutSession = async (req, res) => {
       return res.status(400).json({ error: "Invalid or empty products array" });
     }
 
+    let subTotal = 0;
     let totalAmount = 0;
 
     const lineItems = products.map((product) => {
-      const amount = Math.round(product.price * 100); // Convert to cents
+      const amount = Math.round(product.price * 100); // Convert PHP to centavos
+      subTotal += amount * product.quantity;
       totalAmount += amount * product.quantity;
 
       return {
         price_data: {
-          currency: "usd",
+          currency: "php",
           product_data: {
             name: product.name,
             images: [product.image],
@@ -47,15 +49,15 @@ export const createCheckoutSession = async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       shipping_address_collection: {
-        allowed_countries: ["US", "CA", "PH"], // Add countries you support
+        allowed_countries: ["PH"],
       },
       shipping_options: [
         {
           shipping_rate_data: {
             type: "fixed_amount",
             fixed_amount: {
-              amount: 100, // Example: $5 shipping fee
-              currency: "usd",
+              amount: 5000, // PHP 50 shipping fee (5000 centavos)
+              currency: "php",
             },
             display_name: "Standard Shipping",
             delivery_estimate: {
@@ -63,6 +65,14 @@ export const createCheckoutSession = async (req, res) => {
               maximum: { unit: "business_day", value: 7 },
             },
           },
+        },
+      ],
+      custom_fields: [
+        {
+          key: "phone_number",
+          label: { type: "custom", custom: "Phone Number" },
+          type: "text",
+          optional: false,
         },
       ],
       line_items: lineItems,
@@ -79,6 +89,8 @@ export const createCheckoutSession = async (req, res) => {
       metadata: {
         userId: req.user._id.toString(),
         couponCode: couponCode || "",
+        subTotal: subTotal / 100,
+        shippingFee: 5000,
         products: JSON.stringify(
           products.map((p) => ({
             id: p._id,
@@ -90,20 +102,27 @@ export const createCheckoutSession = async (req, res) => {
       shipping: shippingAddress
         ? {
             name: shippingAddress.name,
+            phone: "{CHECKOUT_SESSION_CUSTOM_FIELDS.phone_number}",
             address: {
               line1: shippingAddress.line1,
               city: shippingAddress.city,
-              postal_code: shippingAddress.zipCode,
+              postal_code: shippingAddress.postal_code,
               country: shippingAddress.country,
             },
           }
         : undefined,
     });
 
-    if (totalAmount >= 20000) {
+    // ✅ Generate a coupon when the total amount reaches 500 pesos (50,000 centavos)
+    if (totalAmount >= 50000) {
       await createNewCoupon(req.user._id);
     }
-    res.status(200).json({ id: session.id, totalAmount: totalAmount / 100 });
+
+    res.status(200).json({
+      id: session.id,
+      subTotal: subTotal / 100, // Convert centavos to pesos
+      totalAmount: totalAmount / 100,
+    });
   } catch (error) {
     console.error("Error processing checkout:", error);
     res
@@ -113,6 +132,60 @@ export const createCheckoutSession = async (req, res) => {
 };
 
 
+
+
+export const codCheckoutSession = async (req, res) => {
+  try {
+    const { products, shippingAddress, totalAmount, subTotal, shippingFee } = req.body;
+
+    if (!Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({ error: "Invalid or empty products array" });
+    }
+
+    // Create a new order
+    const newOrder = new Order({
+      user: req.user._id,
+      products: products.map((product) => ({
+        product: product._id,
+        quantity: product.quantity,
+        price: product.price,
+      })),
+      subTotal,
+      totalAmount,
+      shippingFee,
+      paymentMethod: "COD",
+      orderStatus: "Pending",
+      shippingAddress,
+    });
+
+    await newOrder.save();
+
+    // 🔹 Create an OrderTracker entry
+    const newOrderTracker = new OrderTracker({
+      orderId: newOrder._id,
+      orderStatus: "Pending", // Default status when order is placed
+    });
+
+    await newOrderTracker.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Order placed successfully and tracking initialized.",
+      orderId: newOrder._id,
+      orderTrackerId: newOrderTracker._id,
+    });
+  } catch (error) {
+    console.error("COD Checkout Error:", error);
+    res
+      .status(500)
+      .json({ message: "Error processing COD order", error: error.message });
+  }
+};
+
+
+
+
+
 export const checkoutSuccess = async (req, res) => {
   try {
     const { sessionId } = req.body;
@@ -120,7 +193,7 @@ export const checkoutSuccess = async (req, res) => {
       expand: ["customer_details"],
     });
 
-    // Check if the order already exists
+    // Check if order already exists
     const existingOrder = await Order.findOne({ stripeSessionId: sessionId });
     if (existingOrder) {
       return res.status(200).json({
@@ -130,16 +203,16 @@ export const checkoutSuccess = async (req, res) => {
       });
     }
 
-    if (session.payment_status === "paid") {
-      if (session.metadata.couponCode) {
-        await Coupon.findOneAndUpdate(
-          {
-            code: session.metadata.couponCode,
-            userId: session.metadata.userId,
-          },
-          { isActive: false }
-        );
-      }
+    // ✅ Extract phone number from custom fields
+    const phoneField = session.custom_fields?.find(
+      (field) => field.key === "phone_number"
+    );
+    const phoneNumber = phoneField ? phoneField.text.value : null;
+
+    if (!phoneNumber) {
+      return res
+        .status(400)
+        .json({ error: "Missing phone number in checkout session." });
     }
 
     // Retrieve the shipping address
@@ -147,7 +220,13 @@ export const checkoutSuccess = async (req, res) => {
     const userId = session.metadata.userId;
     const products = JSON.parse(session.metadata.products);
 
-    // Create new order
+    // Calculate subtotal
+    const subtotal = products.reduce(
+      (acc, product) => acc + product.price * product.quantity,
+      0
+    );
+
+    // ✅ Corrected: Ensure `phone` is included in `shippingAddress`
     const newOrder = new Order({
       user: userId,
       products: products.map((product) => ({
@@ -155,7 +234,9 @@ export const checkoutSuccess = async (req, res) => {
         quantity: product.quantity,
         price: product.price,
       })),
-      totalAmount: session.amount_total / 100,
+      paymentMethod: "stripe",
+      subTotal: subtotal, // ✅ Added subtotal
+      totalAmount: session.amount_total / 100, // ✅ Convert to PHP
       shippingFee: session.shipping_cost
         ? session.shipping_cost.amount_total / 100
         : 0,
@@ -170,6 +251,7 @@ export const checkoutSuccess = async (req, res) => {
         state: shippingAddress.state || "",
         postal_code: shippingAddress.postal_code,
         country: shippingAddress.country,
+        phone: phoneNumber, // ✅ Extracted phone number correctly
       },
     });
 
@@ -178,7 +260,7 @@ export const checkoutSuccess = async (req, res) => {
     // 🔹 Create an order tracker entry after the order is created
     const newOrderTracker = new OrderTracker({
       orderId: newOrder._id,
-      orderStatus: "Pending", // Default status when an order is placed
+      orderStatus: "Pending",
     });
 
     await newOrderTracker.save();
@@ -197,6 +279,9 @@ export const checkoutSuccess = async (req, res) => {
     });
   }
 };
+
+
+
 
 
 

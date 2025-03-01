@@ -21,6 +21,12 @@ import { SidebarProvider } from "./components/SidebarContext"
 import ProductPage from "./pages/ProductPage"
 import CustomerOrderPage from "./pages/CustomerOrderPage"
 import MyPurchasePage from "./pages/MyPurchasePage"
+import CheckOutPage from "./pages/CheckOutPage"
+import CodSuccessPage from "./pages/CodSuccessPage"
+import OrderTrackingPage from "./pages/OrderTrackingPage"
+import Footer from "./components/Footer"
+import FinishProductPage from "./pages/FinishProductPage"
+import RawMaterialRequest from "./pages/RawMaterialRequest"
 
 
 
@@ -50,6 +56,7 @@ function App() {
         
           <SidebarProvider>
               {!isAdmin && (<Navbar/>)}
+              
                 <Routes>
                   <Route path="/signup" element={!user ? <SignUpPage/> : <Navigate to='/' />} />
                   <Route path="/login" element={!user ? <LoginPage/> :  <Navigate to={isAdmin ? "/dashboard" : "/"}/>} />
@@ -58,13 +65,20 @@ function App() {
                   <Route path="/dashboard" element={user?.role === "admin" ? <DashboardPage/> : <Navigate to='/' />} />
                   <Route path="/product" element={user?.role === "admin" ? <ProductPage/> : <Navigate to='/' />} />
                   <Route path="/orders" element={user?.role === "admin" ? <CustomerOrderPage/> : <Navigate to='/' />} />
+                  <Route path='/finishProduct' element={user?.role === "admin" ? <FinishProductPage /> : <Navigate to='/login' />} />
+                  <Route path='/rawMaterialRequest' element={user?.role === "admin" ? <RawMaterialRequest /> : <Navigate to='/login' />} />
 
                   <Route path='/category/:category' element={<CategoryPage />} />
                   <Route path='/cart' element={user ? <CartPage /> : <Navigate to='/login' />} />
                   <Route path='/purchase-success' element={user ? <PurchaseSuccessPage /> : <Navigate to='/login' />} />
+                  <Route path='/cod-success' element={user ? <CodSuccessPage /> : <Navigate to='/login' />} />
                   <Route path='/purchase-cancel' element={user ? <PurchaseCancelPage /> : <Navigate to='/login' />} />
                   <Route path='/purchasePage' element={user ? <MyPurchasePage /> : <Navigate to='/login' />} />
+                  <Route path='/checkoutPage' element={user ? <CheckOutPage /> : <Navigate to='/login' />} />
+                  <Route path='/orderTrackingPage/:orderId' element={user ? <OrderTrackingPage /> : <Navigate to='/login' />} />
+                  
                 </Routes>
+                 {!isAdmin && <Footer />}
               <Toaster/>
           </SidebarProvider>
         

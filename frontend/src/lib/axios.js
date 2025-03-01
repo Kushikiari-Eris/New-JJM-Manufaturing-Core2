@@ -1,8 +1,11 @@
-import axios from "axios"
+import axios from "axios";
 
 const axiosInstance = axios.create({
-    baseURL: import.meta.mode === "development" ? "http://localhost:7684/api" : "/api",
-    withCredentials: true, 
-})
+  baseURL:
+    import.meta.env.MODE === "development"
+      ? "http://localhost:7684/api"
+      : "https://backend-core2.jjm-manufacturing.com/api",
+  withCredentials: true,
+});
 
-export default axiosInstance 
+export default axiosInstance;

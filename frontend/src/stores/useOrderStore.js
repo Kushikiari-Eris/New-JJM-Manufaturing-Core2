@@ -46,20 +46,21 @@ export const useOrderStore = create((set) => ({
   },
 
   fetchOrderStatus: async (orderId) => {
+    set({ loading: true, error: null });
     try {
+      if (!orderId || typeof orderId !== "string") {
+        console.error("Invalid orderId:", orderId);
+        return;
+      }
       const response = await axios.get(`/orderTracker/${orderId}`);
-      set((state) => ({
-        orderTracker: [
-          ...state.orderTracker.filter((o) => o.orderId?._id !== orderId),
-          response.data,
-        ],
-      }));
+      set({ orderTracker: [response.data] }); 
     } catch (error) {
       console.error("Error fetching order status:", error);
     }
   },
 
   updateOrderStatus: async (orderId, orderStatus) => {
+    set({ loading: true, error: null });
     try {
       await axios.put("/orderTracker/update", { orderId, orderStatus });
 
@@ -77,6 +78,7 @@ export const useOrderStore = create((set) => ({
   },
 
   updateStatus: async (orderId, status) => {
+    set({ loading: true, error: null });
     if (!orderId || !status) {
       console.error("Missing orderId or status", { orderId, status });
       return;
