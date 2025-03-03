@@ -1,16 +1,18 @@
 import express from "express";
 import {
-  createRawMaterialRequest,
-  getRawMaterialRequests,
-  updateRawMaterialRequestStatus,
+  createRequest,
+  getAllRequests,
+  getRequestById,
+  updateRequestStatus,
+  deleteRequest,
 } from "../controllers/rawMaterialRequest.controller.js";
-
-import { adminRoute, protectRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
-router.post("/", protectRoute, createRawMaterialRequest); 
-router.get("/", protectRoute, getRawMaterialRequests); 
-router.put("/:requestId/status", protectRoute, updateRawMaterialRequestStatus); 
+router.post("/", createRequest); // Create a request
+router.get("/", getAllRequests); // Get all requests
+router.get("/:id", getRequestById); // Get a specific request
+router.put("/:id", updateRequestStatus); // Update request status
+router.delete("/:id", deleteRequest); // Delete a request
 
 export default router;

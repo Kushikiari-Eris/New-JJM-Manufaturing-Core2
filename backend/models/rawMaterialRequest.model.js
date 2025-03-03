@@ -1,23 +1,50 @@
 import mongoose from "mongoose";
 
 const rawMaterialRequestSchema = new mongoose.Schema({
+  rawmaterialNumber: { type: String },
+  requestDate: {
+    type: Date,
+    default: Date.now,
+  },
+  requestStatus: {
+    type: String,
+    enum: ["Pending", "Approved", "Rejected"],
+    default: "Pending",
+  },
   requestedBy: {
     type: String,
     required: true,
   },
-  materials: [
+  approvedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null,
+  },
+  approvalDate: {
+    type: Date,
+    default: null,
+  },
+  department: { type: String, required: true },
+  approvalId: { type: String, default: null, },
+  material: [
     {
-      rawMaterialName: {
-        type: String,
-        required: true,
+      materialName: String,
+      materialId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Material",
       },
-      quantity: { type: Number, required: true },
+      quantity: Number,
+      unit: String,
     },
   ],
-  status: {
+  priority: {
     type: String,
-    enum: ["Pending", "Approved", "Rejected"],
-    default: "Pending",
+    enum: ["High", "Medium", "Low"],
+    default: "Medium",
+  },
+  notes: {
+    type: String,
+    trim: true,
   },
   createdAt: { type: Date, default: Date.now },
 });

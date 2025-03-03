@@ -27,6 +27,7 @@ import OrderTrackingPage from "./pages/OrderTrackingPage"
 import Footer from "./components/Footer"
 import FinishProductPage from "./pages/FinishProductPage"
 import RawMaterialRequest from "./pages/RawMaterialRequest"
+import InvoiceRecordsPage from "./pages/InvoiceRecordsPage"
 
 
 
@@ -67,6 +68,7 @@ function App() {
                   <Route path="/orders" element={user?.role === "admin" ? <CustomerOrderPage/> : <Navigate to='/' />} />
                   <Route path='/finishProduct' element={user?.role === "admin" ? <FinishProductPage /> : <Navigate to='/login' />} />
                   <Route path='/rawMaterialRequest' element={user?.role === "admin" ? <RawMaterialRequest /> : <Navigate to='/login' />} />
+                  <Route path='/invoiceRecords' element={user?.role === "admin" ? <InvoiceRecordsPage /> : <Navigate to='/login' />} />
 
                   <Route path='/category/:category' element={<CategoryPage />} />
                   <Route path='/cart' element={user ? <CartPage /> : <Navigate to='/login' />} />

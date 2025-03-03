@@ -2,58 +2,66 @@ import React, { useEffect, useState } from "react";
 import { useRawMaterialRequestStore } from "../stores/useRawMaterialRequestStore";
 
 const RawMaterialRequestForm = () => {
-    const { requests, fetchRequests, createRequest, updateRequestStatus, loading } = useRawMaterialRequestStore();
-    const [requestedBy, setRequestedBy] = useState("");
-    const [materials, setMaterials] = useState([{ rawMaterialId: "", quantity: 1 }]);
-
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5; // Adjust the number of items per page
-    
-    // Calculate total pages
-    const totalPages = Math.ceil(requests.length / itemsPerPage);
-
-    // Slice the data for the current page
-    const currentProducts = requests.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-    // Handle page change
-    const handlePageChange = (newPage) => {
-        if (newPage >= 1 && newPage <= totalPages) {
-            setCurrentPage(newPage);
-        }
-    };
+    const { requests, fetchRequests, addRequest, updateRequestStatus, deleteRequest } = useRawMaterialRequestStore();
+  
+    const [formData, setFormData] = useState({
+        rawmaterialNumber: "",
+        requestedBy: "",
+        department: "",
+        priority: "Medium",
+        notes: "",
+        material: [{ materialName: "", quantity: "", unit: "" }],
+    });
 
     useEffect(() => {
         fetchRequests();
-    }, []);
+    }, [fetchRequests]);
 
-    const handleAddMaterial = () => {
-        setMaterials([...materials, { rawMaterialId: "", quantity: 1 }]);
+    // Handle input change
+    const handleChange = (e, index = null) => {
+        const { name, value } = e.target;
+
+        if (index !== null) {
+        // Handling material array updates
+        const updatedMaterials = [...formData.material];
+        updatedMaterials[index][name] = value;
+        setFormData({ ...formData, material: updatedMaterials });
+        } else {
+        setFormData({ ...formData, [name]: value });
+        }
     };
 
-    const handleRemoveMaterial = (index) => {
-        setMaterials((prev) => prev.filter((_, i) => i !== index));
-    };
-
-    const handleMaterialChange = (index, field, value) => {
-        const updatedMaterials = [...materials];
-        updatedMaterials[index][field] = value;
-        setMaterials(updatedMaterials);
-    };
-
-    const handleSubmit = async (e) => {
+    // Handle adding a new request
+    const handleSubmit = (e) => {
         e.preventDefault();
-        await createRequest({ requestedBy, materials });
-        setRequestedBy("");
-        setMaterials([{ rawMaterialId: "", quantity: 1 }]);
+        addRequest(formData);
+        setFormData({
+        rawmaterialNumber: "",
+        requestedBy: "",
+        department: "",
+        priority: "Medium",
+        notes: "",
+        material: [{ materialName: "", quantity: "", unit: "" }],
+        });
     };
 
-    const handleStatusChange = async (id, status) => {
-        await updateRequestStatus(id, status);
+    // Add new material input field
+    const addMaterialField = () => {
+        setFormData({
+        ...formData,
+        material: [...formData.material, { materialName: "", quantity: "", unit: "" }],
+        });
     };
 
+    // Remove material field
+    const removeMaterialField = (index) => {
+        const updatedMaterials = [...formData.material];
+        updatedMaterials.splice(index, 1);
+        setFormData({ ...formData, material: updatedMaterials });
+    };
     return (
         <>
-        <div className="header my-3 h-20 px-10 flex items-center border  bg-white rounded-lg">
+        {/* <div className="header my-3 h-20 px-10 flex items-center border  bg-white rounded-lg">
             <h1 className="font-bold text-2xl">Requests Raw Material</h1>
         </div>
         <div className="flex flex-col gap-2 mt-6 lg:flex-row">
@@ -180,7 +188,7 @@ const RawMaterialRequestForm = () => {
                         </table>
                     </div>
 
-                    {/* Pagination Controls */}
+                    
                     {totalPages > 1 && (
                         <div className="flex justify-center items-center space-x-2 py-4 mt-auto">
                             <button 
@@ -211,7 +219,64 @@ const RawMaterialRequestForm = () => {
                         </div>
                     )}
             </div>
-        </div>
+        </div> */}
+
+
+     <div className="p-6 bg-gray-100 min-h-screen">
+      <h1 className="text-2xl font-bold mb-4">Raw Material Requests</h1>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="bg-white p-4 rounded-lg shadow-md mb-6">
+        <input type="text" name="rawmaterialNumber" placeholder="Raw Material Number" value={formData.rawmaterialNumber} onChange={handleChange} className="w-full p-2 mb-2 border rounded" required />
+        <input type="text" name="requestedBy" placeholder="Requested By" value={formData.requestedBy} onChange={handleChange} className="w-full p-2 mb-2 border rounded" required />
+        <input type="text" name="department" placeholder="Department" value={formData.department} onChange={handleChange} className="w-full p-2 mb-2 border rounded" required />
+        
+        <select name="priority" value={formData.priority} onChange={handleChange} className="w-full p-2 mb-2 border rounded">
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+
+        <textarea name="notes" placeholder="Notes" value={formData.notes} onChange={handleChange} className="w-full p-2 mb-2 border rounded"></textarea>
+
+        {/* Material Fields */}
+        <h2 className="text-lg font-semibold mb-2">Materials</h2>
+        {formData.material.map((mat, index) => (
+          <div key={index} className="flex gap-2 mb-2">
+            <input type="text" name="materialName" placeholder="Material Name" value={mat.materialName} onChange={(e) => handleChange(e, index)} className="p-2 border rounded w-1/3" required />
+            <input type="number" name="quantity" placeholder="Quantity" value={mat.quantity} onChange={(e) => handleChange(e, index)} className="p-2 border rounded w-1/3" required />
+            <input type="text" name="unit" placeholder="Unit" value={mat.unit} onChange={(e) => handleChange(e, index)} className="p-2 border rounded w-1/3" required />
+            {index > 0 && <button type="button" onClick={() => removeMaterialField(index)} className="text-red-500">X</button>}
+          </div>
+        ))}
+        <button type="button" onClick={addMaterialField} className="bg-gray-500 text-white px-4 py-2 rounded w-full mb-2">+ Add Material</button>
+
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded w-full">Add Request</button>
+      </form>
+
+      {/* Request List */}
+      <ul>
+        {requests.map((request) => (
+          <li key={request._id} className="bg-white p-4 rounded-lg shadow-md mb-2">
+            <p className="font-bold">{request.rawmaterialNumber} - {request.requestStatus}</p>
+            <p>Requested by: {request.requestedBy}</p>
+            <p>Priority: {request.priority}</p>
+            <p>Department: {request.department}</p>
+            <p>Notes: {request.notes}</p>
+            
+            {/* Materials */}
+            <h3 className="font-semibold mt-2">Materials:</h3>
+            <ul className="list-disc pl-6">
+              {request.material.map((mat, idx) => (
+                <li key={idx}>{mat.materialName} - {mat.quantity} {mat.unit}</li>
+              ))}
+            </ul>
+
+            <button onClick={() => deleteRequest(request._id)} className="bg-red-500 text-white px-3 py-1 rounded mt-2">Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
         </>
     );
 };

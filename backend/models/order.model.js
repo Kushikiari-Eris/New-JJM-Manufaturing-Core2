@@ -33,7 +33,7 @@ const orderSchema = new mongoose.Schema(
     },
     subTotal: {
       type: String,
-      required: true
+      required: true,
     },
     shippingFee: {
       type: Number,
@@ -54,6 +54,12 @@ const orderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    deliveryDate: {
+      type: Date,
+    },
+    shippingMethod: {
+      type: String,
+    },
     shippingAddress: {
       name: { type: String, required: true },
       line1: { type: String, required: true },
@@ -61,7 +67,7 @@ const orderSchema = new mongoose.Schema(
       state: { type: String },
       postal_code: { type: String, required: true },
       country: { type: String, required: true },
-      phone:{ type: String, required: true }
+      phone: { type: String, required: true },
     },
     status: {
       type: String,

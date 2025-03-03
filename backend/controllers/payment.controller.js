@@ -2,6 +2,8 @@ import { stripe } from "../config/stripe.js"
 import Coupon from "../models/coupon.model.js"
 import Order from "../models/order.model.js"
 import OrderTracker from "../models/orderTracker.model.js";
+import { gatewayTokenGenerator } from "../middleware/gatewayTokenGenerator.js";
+import axios from "axios";
 
 export const stripeCheckoutSession = async (req, res) => {
   try {
@@ -46,6 +48,11 @@ export const stripeCheckoutSession = async (req, res) => {
       }
     }
 
+    // ✅ Default shipping method: Lalamove
+    const shippingMethod = "Lalamove";
+    const deliveryDate = new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + 3); // ✅ Default to 3 days
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       shipping_address_collection: {
@@ -59,10 +66,10 @@ export const stripeCheckoutSession = async (req, res) => {
               amount: 5000, // PHP 50 shipping fee (5000 centavos)
               currency: "php",
             },
-            display_name: "Standard Shipping",
+            display_name: "Standard Shipping (Lalamove)", // ✅ Updated label
             delivery_estimate: {
               minimum: { unit: "business_day", value: 3 },
-              maximum: { unit: "business_day", value: 7 },
+              maximum: { unit: "business_day", value: 3 }, // ✅ Fixed 3 days
             },
           },
         },
@@ -88,12 +95,16 @@ export const stripeCheckoutSession = async (req, res) => {
         : [],
       metadata: {
         userId: req.user._id.toString(),
+        customerName: shippingAddress?.name || "Unknown Customer", // ✅ Added customer name
         couponCode: couponCode || "",
         subTotal: subTotal / 100,
         shippingFee: 5000,
+        shippingMethod, // ✅ Added shipping method
+        deliveryDate: deliveryDate.toISOString(), // ✅ Added delivery date
         products: JSON.stringify(
           products.map((p) => ({
             id: p._id,
+            name: p.name, // ✅ Added product name
             quantity: p.quantity,
             price: p.price,
           }))
@@ -122,6 +133,8 @@ export const stripeCheckoutSession = async (req, res) => {
       id: session.id,
       subTotal: subTotal / 100, // Convert centavos to pesos
       totalAmount: totalAmount / 100,
+      shippingMethod, // ✅ Return shipping method in response
+      deliveryDate: deliveryDate.toISOString(), // ✅ Return delivery date
     });
   } catch (error) {
     console.error("Error processing checkout:", error);
@@ -130,6 +143,8 @@ export const stripeCheckoutSession = async (req, res) => {
       .json({ message: "Error processing checkout", error: error.message });
   }
 };
+
+
 
 
 
@@ -183,9 +198,6 @@ export const codCheckoutSession = async (req, res) => {
 };
 
 
-
-
-
 export const checkoutSuccess = async (req, res) => {
   try {
     const { sessionId } = req.body;
@@ -193,7 +205,6 @@ export const checkoutSuccess = async (req, res) => {
       expand: ["customer_details"],
     });
 
-    // Check if order already exists
     const existingOrder = await Order.findOne({ stripeSessionId: sessionId });
     if (existingOrder) {
       return res.status(200).json({
@@ -203,7 +214,6 @@ export const checkoutSuccess = async (req, res) => {
       });
     }
 
-    // ✅ Extract phone number from custom fields
     const phoneField = session.custom_fields?.find(
       (field) => field.key === "phone_number"
     );
@@ -215,28 +225,36 @@ export const checkoutSuccess = async (req, res) => {
         .json({ error: "Missing phone number in checkout session." });
     }
 
-    // Retrieve the shipping address
+    const shippingMethod =
+      session.metadata.shippingMethod || "Lalamove Express Shipping";
+
+    const deliveryDate = session.metadata.deliveryDate
+      ? new Date(session.metadata.deliveryDate)
+      : new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + 3);
+
     const shippingAddress = session.customer_details.address;
     const userId = session.metadata.userId;
+    const customerName = session.metadata.customerName; // ✅ Extracted customer name
     const products = JSON.parse(session.metadata.products);
 
-    // Calculate subtotal
     const subtotal = products.reduce(
       (acc, product) => acc + product.price * product.quantity,
       0
     );
 
-    // ✅ Corrected: Ensure `phone` is included in `shippingAddress`
     const newOrder = new Order({
       user: userId,
+      customerName, // ✅ Added customer name
       products: products.map((product) => ({
         product: product.id,
+        name: product.name, // ✅ Added product name
         quantity: product.quantity,
         price: product.price,
       })),
       paymentMethod: "stripe",
-      subTotal: subtotal, // ✅ Added subtotal
-      totalAmount: session.amount_total / 100, // ✅ Convert to PHP
+      subTotal: subtotal,
+      totalAmount: session.amount_total / 100,
       shippingFee: session.shipping_cost
         ? session.shipping_cost.amount_total / 100
         : 0,
@@ -244,6 +262,8 @@ export const checkoutSuccess = async (req, res) => {
         ? session.total_details.amount_discount / 100
         : 0,
       stripeSessionId: sessionId,
+      shippingMethod,
+      deliveryDate,
       shippingAddress: {
         name: session.customer_details.name,
         line1: shippingAddress.line1,
@@ -251,13 +271,12 @@ export const checkoutSuccess = async (req, res) => {
         state: shippingAddress.state || "",
         postal_code: shippingAddress.postal_code,
         country: shippingAddress.country,
-        phone: phoneNumber, // ✅ Extracted phone number correctly
+        phone: phoneNumber,
       },
     });
 
     await newOrder.save();
 
-    // 🔹 Create an order tracker entry after the order is created
     const newOrderTracker = new OrderTracker({
       orderId: newOrder._id,
       orderStatus: "Pending",
@@ -265,20 +284,55 @@ export const checkoutSuccess = async (req, res) => {
 
     await newOrderTracker.save();
 
+    try {
+      const token = gatewayTokenGenerator();
+      const financeResponse = await axios.post(
+        `${process.env.API_GATEWAY_URL}/finance/order-information`,
+        {
+          orderNumber: newOrder._id,
+          customerId: userId,
+          customerName,
+          orders: products.map((product) => ({
+            itemName: product.name, // ✅ Added product name
+            quantity: product.quantity,
+            price: product.price,
+          })),
+          paymentMethod: newOrder.paymentMethod,
+          contactInformation: newOrder.shippingAddress.phone,
+          orderDate: newOrder.createdAt,
+          shippingMethod,
+          deliveryDate,
+          customerAddress: JSON.stringify(newOrder.shippingAddress),
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      console.log("✅ Order sent to Finance:", financeResponse.data);
+    } catch (financeError) {
+      console.error("❌ Error sending order to Finance:", financeError.message);
+    }
+
     res.status(200).json({
       success: true,
       message:
-        "Payment successful, order created, and order tracker initialized.",
+        "Payment successful, order created, sent to finance, and order tracker initialized.",
       orderId: newOrder._id,
       orderTrackerId: newOrderTracker._id,
+      shippingMethod,
+      deliveryDate,
     });
   } catch (error) {
+    console.error("❌ Error in checkoutSuccess:", error.message);
     res.status(500).json({
       message: "Error processing successful checkout",
       error: error.message,
     });
   }
 };
+
+
 
 
 
