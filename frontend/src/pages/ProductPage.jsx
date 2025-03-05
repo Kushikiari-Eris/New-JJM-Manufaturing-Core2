@@ -30,8 +30,10 @@ const ProductPage = () => {
           </div>
 
           {/* Main content with padding to avoid overlap */}
-          <main className="mt-40">
-            <ProductList/>
+          <main className="mt-20  overflow-y-auto bg-gray-100 h-full">
+            <div className='p-4'>
+                <ProductList/>
+            </div>
           </main>
         </div>
       </div>

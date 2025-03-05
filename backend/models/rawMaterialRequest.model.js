@@ -25,7 +25,7 @@ const rawMaterialRequestSchema = new mongoose.Schema({
     default: null,
   },
   department: { type: String, required: true },
-  approvalId: { type: String, default: null, },
+  approvalId: { type: String },
   material: [
     {
       materialName: String,

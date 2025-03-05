@@ -1,51 +1,56 @@
 import RawMaterialRequest from "../models/rawMaterialRequest.model.js";
 import  {gatewayTokenGenerator}  from "../middleware/gatewayTokenGenerator.js";
 import axios from "axios";
+import bcrypt from 'bcryptjs'
 
 // Create a new raw material request
 export const createRequest = async (req, res) => {
   try {
-    console.log("Received Data:", req.body);
-
-    // Generate token for API Gateway
-    const token = gatewayTokenGenerator();
-    console.log("Generated Token:", token);
-
-    // Create a new request in the local database
+ 
     const newRequest = new RawMaterialRequest(req.body);
     await newRequest.save();
-    console.log("Saved Request in DB:", newRequest);
 
-    // Forward the request to the API Gateway
-    const response = await axios.post(
-      `${process.env.API_GATEWAY_URL}/logistic1/request-raw-material`,
-      req.body,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
 
-    console.log("API Gateway Response:", response.data);
+    try {
+      const token = gatewayTokenGenerator(); 
+      const logisticData = {
+        requestedBy: newRequest.requestedBy,
+        department: newRequest.department,
+        customerName: newRequest.requestedBy,
+        material: newRequest.material.map((material) => ({
+          materialName: material.materialName,
+          quantity: material.quantity,
+          unit: material.unit,
+        })),
+        notes: newRequest.notes,
+        priority: newRequest.priority,
+        approvalId: newRequest._id,
+      };
 
-    res.status(201).json({
-      message: "Request created successfully",
-      data: newRequest,
-      gatewayResponse: response.data,
-    });
+      // Send to Logistic1
+      const logisticResponse = await axios.post(
+        `${process.env.API_GATEWAY_URL}/logistic1/request-raw-material`,
+        logisticData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      console.log("Data sent to Logistic1:", logisticResponse.data);
+    } catch (logisticsError) {
+      console.error(
+        " Error sending data to Logistic1:",
+        logisticsError.message
+      );
+    }
+
+    
+    res.status(201).json(newRequest);
   } catch (error) {
-    // Log full error details
-    console.error(
-      "Error in createRequest:",
-      error.response?.data || error.message
-    );
-
-    res.status(500).json({
-      message: "Failed to create request",
-      error: error.response?.data || error.message,
-    });
+    res
+      .status(500)
+      .json({ message: "Failed to create request", error: error.message });
   }
 };
-
 
 // Get all requests
 export const getAllRequests = async (req, res) => {

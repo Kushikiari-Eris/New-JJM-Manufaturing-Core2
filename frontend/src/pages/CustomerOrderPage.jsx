@@ -62,11 +62,13 @@ const CustomerOrderPage = () => {
                 </div>
 
                 {/* Main content with padding to avoid overlap */}
-                <main className="mt-40">
-                    <OrderList openModal={openModal} openSecondModal={openSecondModal}/>
-                    {isModalOpen && <ViewOrderList orderId={selectedOrderId} onClose={closeModal} />}
+                <main className="mt-20  overflow-y-auto bg-gray-100 h-full">
+                    <div className='p-4'>
+                        <OrderList openModal={openModal} openSecondModal={openSecondModal}/>
+                        {isModalOpen && <ViewOrderList orderId={selectedOrderId} onClose={closeModal} />}
 
-                    {isSecondModalOpen && <OrderTrackingDetails orderId={selectedOrderId} onClose={closeSecondModal} />}
+                        {isSecondModalOpen && <OrderTrackingDetails orderId={selectedOrderId} onClose={closeSecondModal} />}
+                    </div>
 
                 </main>
                 </div>

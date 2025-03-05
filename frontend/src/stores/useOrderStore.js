@@ -28,7 +28,13 @@ export const useOrderStore = create((set) => ({
       });
 
       const updatedOrders = await Promise.all(orderStatusPromises);
-      set({ orders: updatedOrders, loading: false });
+
+      // ✅ Sort orders by `createdAt` (newest first)
+      const sortedOrders = updatedOrders.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      set({ orders: sortedOrders, loading: false });
     } catch (error) {
       console.error("Error fetching orders", error);
       set({ error: "Failed to fetch orders", loading: false, orders: [] });
@@ -53,7 +59,7 @@ export const useOrderStore = create((set) => ({
         return;
       }
       const response = await axios.get(`/orderTracker/${orderId}`);
-      set({ orderTracker: [response.data] }); 
+      set({ orderTracker: [response.data] });
     } catch (error) {
       console.error("Error fetching order status:", error);
     }

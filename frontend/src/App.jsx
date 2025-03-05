@@ -28,6 +28,8 @@ import Footer from "./components/Footer"
 import FinishProductPage from "./pages/FinishProductPage"
 import RawMaterialRequest from "./pages/RawMaterialRequest"
 import InvoiceRecordsPage from "./pages/InvoiceRecordsPage"
+import AuditDashboard from "./pages/auditDashboard"
+import ProductExecutionPage from "./pages/ProductExecutionPage"
 
 
 
@@ -49,6 +51,7 @@ function App() {
 
 
   const isAdmin = user?.role === "admin"
+  const isAudit = user?.role === "audit"
 
   return (
     
@@ -60,7 +63,7 @@ function App() {
               
                 <Routes>
                   <Route path="/signup" element={!user ? <SignUpPage/> : <Navigate to='/' />} />
-                  <Route path="/login" element={!user ? <LoginPage/> :  <Navigate to={isAdmin ? "/dashboard" : "/"}/>} />
+                  <Route path="/login" element={!user ? <LoginPage/> :  <Navigate to={isAdmin ? "/dashboard" : isAudit ? "/auditPlanning" : "/"}/>} />
                   <Route path="/" element={<HomePage/>} />
 
                   <Route path="/dashboard" element={user?.role === "admin" ? <DashboardPage/> : <Navigate to='/' />} />
@@ -69,6 +72,11 @@ function App() {
                   <Route path='/finishProduct' element={user?.role === "admin" ? <FinishProductPage /> : <Navigate to='/login' />} />
                   <Route path='/rawMaterialRequest' element={user?.role === "admin" ? <RawMaterialRequest /> : <Navigate to='/login' />} />
                   <Route path='/invoiceRecords' element={user?.role === "admin" ? <InvoiceRecordsPage /> : <Navigate to='/login' />} />
+                  <Route path='/productExecution' element={user?.role === "admin" ? <ProductExecutionPage /> : <Navigate to='/login' />} />
+
+
+                  <Route path='/auditPlanning' element={user?.role === "audit" ? <AuditDashboard /> : <Navigate to='/login' />} />
+
 
                   <Route path='/category/:category' element={<CategoryPage />} />
                   <Route path='/cart' element={user ? <CartPage /> : <Navigate to='/login' />} />

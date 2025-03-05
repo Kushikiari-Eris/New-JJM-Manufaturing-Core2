@@ -8,6 +8,7 @@ import { useSidebar } from "./SidebarContext";
 const Navbar = () => {
   const { user, logout } = useUserStore();
   const isAdmin = user?.role === "admin";
+  const isAudit = user?.role === "audit";
   const { cart } = useCartStore();
   const { isCollapsed } = useSidebar();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

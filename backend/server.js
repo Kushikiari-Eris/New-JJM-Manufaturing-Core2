@@ -18,6 +18,7 @@ import finishProductroutes from './routes/finishProduct.routes.js'
 import rewMaterialRequest from './routes/rawMaterialRequest.routes.js'
 import finishedProductTransfer from "./routes/finishedProductTransfer.routes.js"
 import invoiceRecords from './routes/invoiceRecords.routes.js'
+import executionRoutes from './routes/productExecution.routes.js'
 
 
 dotenv.config()
@@ -56,6 +57,7 @@ app.use("/api/finishProduct", finishProductroutes);
 app.use("/api/rawMaterialRequest", rewMaterialRequest);
 app.use("/api/finished-product-transfer", finishedProductTransfer);
 app.use("/api/invoiceRecords", invoiceRecords);
+app.use("/api/execution", executionRoutes);
 
 if(process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "/frontend/dist")))

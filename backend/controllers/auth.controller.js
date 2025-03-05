@@ -76,6 +76,7 @@ export const login = async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          
         });
       }
     }
@@ -86,6 +87,17 @@ export const login = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+                // const token = gatewayTokenGenerator();
+                // const response = await axios.get(
+                //   `${process.env.API_GATEWAY_URL}/admin/get-accounts`,
+                //   {
+                //     headers: { Authorization: `Bearer ${token}` },
+                //   }
+                // );
+
+                // console.log(response.data)
+
 
 export const signup = async (req, res) => {
   const { email, password, name } = req.body;

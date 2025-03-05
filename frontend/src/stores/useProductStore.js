@@ -24,12 +24,22 @@ export const useProductStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axios.get("/products");
-      set({ products: response.data.products, loading: false });
+      const products = Array.isArray(response.data.products)
+        ? response.data.products
+        : [];
+
+      // ✅ Sort products by `createdAt` (newest first)
+      const sortedProducts = products.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      set({ products: sortedProducts, loading: false });
     } catch (error) {
       set({ error: "Failed to fetch products", loading: false });
-      toast.error(error.response.data.error || "Failed to fetch products");
+      toast.error(error.response?.data?.error || "Failed to fetch products");
     }
   },
+
   toggleFeaturedProduct: async (productId) => {
     set({ loading: true });
     try {

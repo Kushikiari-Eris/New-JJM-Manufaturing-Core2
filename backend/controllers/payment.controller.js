@@ -151,7 +151,8 @@ export const stripeCheckoutSession = async (req, res) => {
 
 export const codCheckoutSession = async (req, res) => {
   try {
-    const { products, shippingAddress, totalAmount, subTotal, shippingFee } = req.body;
+    const { products, shippingAddress, totalAmount, subTotal, shippingFee } =
+      req.body;
 
     if (!Array.isArray(products) || products.length === 0) {
       return res.status(400).json({ error: "Invalid or empty products array" });
@@ -171,6 +172,7 @@ export const codCheckoutSession = async (req, res) => {
       paymentMethod: "COD",
       orderStatus: "Pending",
       shippingAddress,
+      shippingMethod: "Lalamove", // Fixed shipping method
     });
 
     await newOrder.save();
@@ -182,6 +184,53 @@ export const codCheckoutSession = async (req, res) => {
     });
 
     await newOrderTracker.save();
+
+    // Clean and format the contactInformation (phone number)
+    const cleanPhoneNumber = newOrder.shippingAddress.phone.replace(
+      /[^0-9]/g, // This regex removes anything that is not a digit
+      ""
+    );
+
+    // Integrating Finance System
+    try {
+      const token = gatewayTokenGenerator(); // Assuming you have this token generator for authentication
+      const payload = {
+        orderNumber: newOrder._id.toString(), // Convert to string
+        customerId: newOrder.user.toString(), // Convert to string
+        customerName: newOrder.shippingAddress.name, // Name from shipping address
+        orders: products.map((product) => ({
+          itemName: product.name, // Product name
+          quantity: product.quantity,
+          price: product.price,
+        })),
+        paymentMethod: newOrder.paymentMethod, // Payment method is COD (Cash on Delivery)
+        contactInformation: cleanPhoneNumber, // Cleaned phone number
+        shippingMethod: newOrder.shippingMethod, // Lalamove
+        deliveryDate: new Date(new Date().setDate(new Date().getDate() + 3)) // Assuming 3 days from now for delivery
+          .toISOString()
+          .slice(0, 10), // Format the date as yy-mm-dd
+        customerAddress: newOrder.shippingAddress.city, // Assuming city is available in shipping address
+        orderDate: newOrder.createdAt.toISOString().slice(0, 10), // Adding the order creation date (formatted as yy-mm-dd)
+      };
+
+      console.log("Sending to Finance:", payload); // Log payload for debugging
+
+      const financeResponse = await axios.post(
+        `${process.env.API_GATEWAY_URL}/finance/order-information`,
+        payload,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      console.log("✅ Order sent to Finance:", financeResponse.data);
+    } catch (financeError) {
+      console.error("❌ Error sending order to Finance:", financeError.message);
+      return res.status(500).json({
+        message: "Error sending order to Finance",
+        error: financeError.message,
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -196,6 +245,8 @@ export const codCheckoutSession = async (req, res) => {
       .json({ message: "Error processing COD order", error: error.message });
   }
 };
+
+
 
 
 export const checkoutSuccess = async (req, res) => {
@@ -228,14 +279,17 @@ export const checkoutSuccess = async (req, res) => {
     const shippingMethod =
       session.metadata.shippingMethod || "Lalamove Express Shipping";
 
-    const deliveryDate = session.metadata.deliveryDate
+    let deliveryDate = session.metadata.deliveryDate
       ? new Date(session.metadata.deliveryDate)
       : new Date();
     deliveryDate.setDate(deliveryDate.getDate() + 3);
 
+    
+    const formattedDeliveryDate = new Date(deliveryDate); 
+
     const shippingAddress = session.customer_details.address;
     const userId = session.metadata.userId;
-    const customerName = session.metadata.customerName; // ✅ Extracted customer name
+    const customerName = session.metadata.customerName; 
     const products = JSON.parse(session.metadata.products);
 
     const subtotal = products.reduce(
@@ -245,14 +299,14 @@ export const checkoutSuccess = async (req, res) => {
 
     const newOrder = new Order({
       user: userId,
-      customerName, // ✅ Added customer name
+      customerName, 
       products: products.map((product) => ({
         product: product.id,
-        name: product.name, // ✅ Added product name
+        name: product.name, 
         quantity: product.quantity,
         price: product.price,
       })),
-      paymentMethod: "stripe",
+      paymentMethod: "Gcash",
       subTotal: subtotal,
       totalAmount: session.amount_total / 100,
       shippingFee: session.shipping_cost
@@ -263,7 +317,7 @@ export const checkoutSuccess = async (req, res) => {
         : 0,
       stripeSessionId: sessionId,
       shippingMethod,
-      deliveryDate,
+      deliveryDate: formattedDeliveryDate,
       shippingAddress: {
         name: session.customer_details.name,
         line1: shippingAddress.line1,
@@ -293,25 +347,25 @@ export const checkoutSuccess = async (req, res) => {
           customerId: userId,
           customerName,
           orders: products.map((product) => ({
-            itemName: product.name, // ✅ Added product name
+            itemName: product.name, 
             quantity: product.quantity,
             price: product.price,
           })),
           paymentMethod: newOrder.paymentMethod,
           contactInformation: newOrder.shippingAddress.phone,
-          orderDate: newOrder.createdAt,
+          orderDate: newOrder.createdAt.toISOString().slice(0, 10), 
           shippingMethod,
-          deliveryDate,
-          customerAddress: JSON.stringify(newOrder.shippingAddress),
+          deliveryDate: formattedDeliveryDate.toISOString().slice(0, 10), 
+          customerAddress: newOrder.shippingAddress.city,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      console.log("✅ Order sent to Finance:", financeResponse.data);
+      console.log(" Order sent to Finance:", financeResponse.data);
     } catch (financeError) {
-      console.error("❌ Error sending order to Finance:", financeError.message);
+      console.error(" Error sending order to Finance:", financeError.message);
     }
 
     res.status(200).json({
@@ -321,16 +375,19 @@ export const checkoutSuccess = async (req, res) => {
       orderId: newOrder._id,
       orderTrackerId: newOrderTracker._id,
       shippingMethod,
-      deliveryDate,
+      deliveryDate: formattedDeliveryDate.toISOString().slice(0, 10), 
+      orderDate: newOrder.createdAt.toISOString().slice(0, 10), 
     });
   } catch (error) {
-    console.error("❌ Error in checkoutSuccess:", error.message);
+    console.error(" Error in checkoutSuccess:", error.message);
     res.status(500).json({
       message: "Error processing successful checkout",
       error: error.message,
     });
   }
 };
+
+
 
 
 

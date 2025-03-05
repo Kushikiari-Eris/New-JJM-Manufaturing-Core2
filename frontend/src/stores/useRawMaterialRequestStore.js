@@ -10,7 +10,13 @@ export const useRawMaterialRequestStore = create((set) => ({
     set({ loading: true });
     try {
       const response = await axios.get("/rawMaterialRequest");
-      set({ requests: response.data, loading: false });
+
+      // Sort requests by createdAt (newest first)
+      const sortedRequests = response.data.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      set({ requests: sortedRequests, loading: false });
     } catch (error) {
       set({ error: error.message, loading: false });
     }

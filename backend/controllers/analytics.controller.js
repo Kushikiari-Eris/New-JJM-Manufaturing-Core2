@@ -66,7 +66,7 @@ export const getDailySalesData = async (startDate, endDate) => {
     return dateArray.map((date) => {
       const foundData = dailySalesData.find((item) => item._id === date);
 
-      return {
+      return { 
         date,
         sales: foundData?.sales || 0,
         revenue: foundData?.revenue || 0,

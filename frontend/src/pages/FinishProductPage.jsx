@@ -2,8 +2,7 @@ import React from 'react'
 import Navbar from "../components/Navbar"
 import Sidebar from "../components/Sidebar"
 import { SidebarProvider } from "../components/SidebarContext"
-import CreateFinishProduct from '../components/CreateFinishProduct'
-import FinishProductTable from '../components/FInishProductTable'
+import FinishProductTable from '../components/FinishProductTable'
 
 const FinishProductPage = () => {
   return (
