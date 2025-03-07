@@ -3,14 +3,19 @@ import axios from "../lib/axios";
 
 export const useProductExecutionStore = create((set) => ({
   executions: [],
+  workOrders: [], // Added to store external API data
   loading: false,
   error: null,
 
   fetchExecutions: async () => {
     set({ loading: true, error: null });
     try {
-      const res = await axios.get("/execution");
-      set({ executions: res.data, loading: false });
+      const res = await axios.get("/execution"); // Fetch from local API
+      set({
+        executions: res.data.executions,
+        workOrders: res.data.workOrders,
+        loading: false,
+      });
     } catch (error) {
       set({ error: error.message, loading: false });
     }

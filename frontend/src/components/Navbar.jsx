@@ -30,21 +30,34 @@ const Navbar = () => {
       <div className="bg-white shadow p-4 fixed top-0 w-full z-50">
         <nav className="flex justify-between items-center">
           {/* Logo - Adjusts with sidebar and remains centered on mobile */}
-          {isAdmin? 
-           (<Link
-            to="/dashboard"
-            className={`text-2xl font-bold text-green-500 flex items-center space-x-2 transition-all duration-300 ${
-              isCollapsed ? "ml-16" : "ml-64"
-            }`}
-          >
-            CORE DEPARTMENT
-          </Link>) : (<Link
-            to="/"
-            className='text-2xl font-bold text-green-500 flex items-center space-x-2 transition-all duration-300'
-          >
-            JJM MANUFACTURING
-          </Link>)
-          }
+          {isAdmin ? (
+            <Link
+              to="/dashboard"
+              className={`text-2xl font-bold text-green-500 flex items-center space-x-2 transition-all duration-300 ${
+                isCollapsed ? "ml-16" : "ml-64"
+              }`}
+            >
+              CORE DEPARTMENT
+            </Link>
+          ) : isAudit ? (
+            <Link
+              to="/auditDashboard"
+               className={`text-2xl font-bold text-green-500 flex items-center space-x-2 transition-all duration-300 ${
+                isCollapsed ? "ml-16" : "ml-64"
+              }`}
+            >
+              CORE AUDIT
+            </Link>
+          ) : (
+            <Link
+              to="/"
+              className="text-2xl font-bold text-green-500 flex items-center space-x-2 transition-all duration-300"
+            >
+              JJM MANUFACTURING
+            </Link>
+          )}
+
+          
 
           {/* Mobile Menu Button */}
           <button
@@ -59,13 +72,13 @@ const Navbar = () => {
 
             {user ? (
               <>
-               {!isAdmin && (
+               {!isAdmin && !isAudit && (
                   <Link to="/" className="text-gray-600 hover:text-emerald-400 transition">
                     Home
                   </Link>
                 )}
 
-                {!isAdmin && (
+                {!isAdmin && !isAudit && (
                   <Link to="/cart" className="relative group text-gray-600 hover:text-emerald-400 transition">
                     <ShoppingCart size={20} className="inline-block mr-1 group-hover:text-emerald-400" />
                     <span className="hidden sm:inline">Cart</span>
@@ -93,7 +106,7 @@ const Navbar = () => {
                         <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">Email: {user.email}</span>
                       </div>
                       <hr className="h-px mb-2 bg-gray-200 border-0 dark:bg-gray-700"></hr>
-                    {!isAdmin && 
+                    {!isAdmin && !isAudit &&
                     <li>
                       <a href="/purchasePage">My Purchase</a>
                     </li>
@@ -125,13 +138,13 @@ const Navbar = () => {
         {/* Mobile Menu - Shown When Open */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 flex flex-col bg-white shadow-lg p-4 absolute top-full right-0 w-full border-t">
-            {!isAdmin && (
+            {!isAdmin && !isAudit && (
               <Link to="/" className="py-2 text-gray-600 hover:text-emerald-400 transition" onClick={() => setMobileMenuOpen(false)}>
                 Home
               </Link>
             )}
 
-            {!isAdmin && user && (
+            {!isAdmin && !isAudit && user && (
               <Link to="/cart" className="relative py-2 text-gray-600 hover:text-emerald-400 transition" onClick={() => setMobileMenuOpen(false)}>
                 <ShoppingCart size={20} className="inline-block mr-1 group-hover:text-emerald-400" />
                 Cart ({cart.length})

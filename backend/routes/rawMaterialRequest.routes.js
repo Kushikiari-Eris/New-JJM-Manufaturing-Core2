@@ -12,7 +12,7 @@ const router = express.Router();
 router.post("/", createRequest); // Create a request
 router.get("/", getAllRequests); // Get all requests
 router.get("/:id", getRequestById); // Get a specific request
-router.put("/:id", updateRequestStatus); // Update request status
+router.post("/update", updateRequestStatus); // Update request status
 router.delete("/:id", deleteRequest); // Delete a request
 
 export default router;

@@ -7,6 +7,7 @@ const ProductExecutionTable = () => {
     fetchExecutions,
     createExecution,
     deleteExecution,
+    workOrders,
   } = useProductExecutionStore();
 
   const [newExecution, setNewExecution] = useState({
@@ -121,9 +122,6 @@ const ProductExecutionTable = () => {
                             Id
                         </th>
                         <th scope="col" className="px-6 py-3">
-                            Creation Date
-                        </th>
-                        <th scope="col" className="px-6 py-3">
                             Due Date
                         </th>
                         <th scope="col" className="px-6 py-3">
@@ -134,6 +132,9 @@ const ProductExecutionTable = () => {
                         </th>
                         <th scope="col" className="px-6 py-3">
                             Quantity
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Assigned To
                         </th>
                         <th scope="col" className="px-6 py-3">
                             Materials
@@ -147,37 +148,45 @@ const ProductExecutionTable = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {executions.map((execution) => (
-                    <tr key={execution._id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <th scope="row" className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-                            <div className="ps-3">
-                                <div className="text-base font-semibold">{execution.workOrderId}</div>
-                            </div>  
-                        </th>
+                    {[...executions, ...workOrders].map((execution) => (
+                    <tr key={execution.id || execution._id || execution.workOrderId} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        
+                        <td className="px-6 py-4 text-base font-semibold text-gray-900">{execution.id || "N/A"}</td>
                         <td className="px-6 py-4">
-                            {new Date(execution.creationDate).toLocaleDateString()}
+                        {execution.deadline ? new Date(execution.deadline).toLocaleString() : "N/A"}
                         </td>
                         <td className="px-6 py-4">
-                            {new Date(execution.dueDate).toLocaleDateString()}
+                        {execution.product?.name || "N/A"}
                         </td>
                         <td className="px-6 py-4">
-                            {execution.productName}
+                        {execution.product_id || execution.productId || "N/A"}
                         </td>
                         <td className="px-6 py-4">
-                            {execution.productId}
+                        {execution.quantity || "N/A"}
                         </td>
                         <td className="px-6 py-4">
-                            {execution.quantity}
+                        {execution.assignedTo || "Unassigned"}
                         </td>
-                        {execution.material.map((mat, i) => (
-                        <td  key={i} className="px-6 py-4">
-                            {mat.itemName} - {mat.quantity}
-                        </td>
-                        ))}
                         <td className="px-6 py-4">
-                            <div className="flex items-center">
-                                <div className="h-2.5 w-2.5 rounded-full bg-yellow-500 me-2"></div> {execution.status}
-                            </div>
+                        {execution.product?.materials && execution.product.materials.length > 0
+                            ? execution.product.materials.map((mat, i) => (
+                                <span key={i} className="block">
+                                    <ul className="list-disc list-inside">
+                                        <li>{mat.material} - {mat.quantity}</li>
+                                    </ul>
+                                </span>
+                            ))
+                            : "No Materials"}
+                        </td>
+                        <td className="px-6 py-4">
+                        <div className="flex items-center">
+                            <div className={`h-2.5 w-2.5 rounded-full ${
+                            execution.status === "Completed" ? "bg-green-500" :
+                            execution.status === "IN_PROGRESS" ? "bg-blue-500" :
+                            "bg-yellow-500"
+                            } me-2`}></div>
+                            {execution.status || "Pending"}
+                        </div>
                         </td>
                         <td className="px-6 py-4">
                             <a href="#" className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>

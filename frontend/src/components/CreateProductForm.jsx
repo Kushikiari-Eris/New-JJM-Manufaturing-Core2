@@ -65,7 +65,7 @@ const CreateProductForm = ({ open, onClose, children }) => {
 								name='name'
 								value={newProduct.name}
 								onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-								className="mt-1 block w-full  border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white 
+								className="mt-1 block w-full  border border-gray-600 rounded-md shadow-sm py-2 px-3 
 								focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
 								required   
 							/>
@@ -82,7 +82,7 @@ const CreateProductForm = ({ open, onClose, children }) => {
 								onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
 								rows='3'
 								className='mt-1 block w-full  border border-gray-600 rounded-md shadow-sm
-								py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 
+								py-2 px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 
 								focus:border-emerald-500'
 								required
 							/>
@@ -100,7 +100,7 @@ const CreateProductForm = ({ open, onClose, children }) => {
 								onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
 								step='0.01'
 								className='mt-1 block w-full  border border-gray-600 rounded-md shadow-sm 
-								py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500
+								py-2 px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500
 								focus:border-emerald-500'
 								required
 							/>

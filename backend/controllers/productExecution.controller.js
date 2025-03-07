@@ -1,4 +1,6 @@
 import ProductExecution from "../models/productExecution.model.js";
+import { gatewayTokenGenerator } from "../middleware/gatewayTokenGenerator.js";
+import axios from "axios";
 
 // Create a new Product Execution
 export const createProductExecution = async (req, res) => {
@@ -14,12 +16,34 @@ export const createProductExecution = async (req, res) => {
 // Get all Product Executions
 export const getAllProductExecutions = async (req, res) => {
   try {
+    // Fetch product executions from local database
     const executions = await ProductExecution.find();
-    res.status(200).json(executions);
+
+    // Generate API Gateway Token
+    const token = gatewayTokenGenerator();
+
+    // Fetch work orders from the external API
+    const response = await axios.get(
+      `${process.env.API_GATEWAY_URL}/core1/api/workOrders`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    // Combine local executions with external work orders
+    res.status(200).json({
+      executions,
+      workOrders: response.data,
+    });
   } catch (error) {
+    console.error("Error fetching data:", error);
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+
 
 // Get single Product Execution by ID
 export const getProductExecutionById = async (req, res) => {

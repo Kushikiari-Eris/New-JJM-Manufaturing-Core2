@@ -27,8 +27,6 @@ export const useProductStore = create((set) => ({
       const products = Array.isArray(response.data.products)
         ? response.data.products
         : [];
-
-      // ✅ Sort products by `createdAt` (newest first)
       const sortedProducts = products.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );

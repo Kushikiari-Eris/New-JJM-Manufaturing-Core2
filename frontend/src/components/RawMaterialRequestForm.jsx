@@ -246,7 +246,7 @@ const RawMaterialRequestForm = () => {
         
                 <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-10 bg-white">
                         <div className="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0  p-4 bg-white dark:bg-gray-900">
-                            <h2 className="font-semibold text-xl">Customer Orders</h2>
+                            <h2 className="font-semibold text-xl">Request Raw Material</h2>
                             <div className="flex items-center gap-3">
                                 <label htmlFor="table-search" className="sr-only ">Search</label>
                                 <div className="relative">
@@ -265,9 +265,6 @@ const RawMaterialRequestForm = () => {
                         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
-                                <th scope="col" className="px-6 py-3">
-                                    Raw Material Number
-                                </th>
                                 <th scope="col" className="px-6 py-3">
                                     Request Date
                                 </th>
@@ -300,14 +297,6 @@ const RawMaterialRequestForm = () => {
                                     key={request._id}
                                     className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
                                 >
-                                    <th
-                                    scope="row"
-                                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white"
-                                    >
-                                    <div className="ps-3">
-                                        <div className="text-base font-semibold">{request.rawmaterialNumber}</div>
-                                    </div>
-                                    </th>
                                     <td className="px-6 py-4">{request.requestDate}</td>
                                     <td className="px-6 py-4">
                                         {request.requestedBy}
@@ -329,7 +318,6 @@ const RawMaterialRequestForm = () => {
                                     <td className="px-6 py-4">
                                     <div className="flex items-center">
                                         <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"> 
-                                            
                                         </div> 
                                         {request.requestStatus}
                                     </div>

@@ -27,7 +27,7 @@ export const createRequest = async (req, res) => {
         approvalId: newRequest._id,
       };
 
-      // Send to Logistic1
+     
       const logisticResponse = await axios.post(
         `${process.env.API_GATEWAY_URL}/logistic1/request-raw-material`,
         logisticData,
@@ -87,10 +87,10 @@ export const getRequestById = async (req, res) => {
 // Update request status
 export const updateRequestStatus = async (req, res) => {
   try {
-    const { requestStatus, approvedBy, approvalDate } = req.body;
+    const { requestStatus  } = req.body;
     const updatedRequest = await RawMaterialRequest.findByIdAndUpdate(
       req.params.id,
-      { requestStatus, approvedBy, approvalDate },
+      { requestStatus },
       { new: true }
     );
 

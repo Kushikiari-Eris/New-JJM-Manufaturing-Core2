@@ -30,6 +30,9 @@ import RawMaterialRequest from "./pages/RawMaterialRequest"
 import InvoiceRecordsPage from "./pages/InvoiceRecordsPage"
 import AuditDashboard from "./pages/auditDashboard"
 import ProductExecutionPage from "./pages/ProductExecutionPage"
+import AuditHrRequestPage from "./pages/AuditHrRequestPage"
+import AuditCorePage from "./pages/AuditCorePage"
+import InventoryPage from "./pages/InventoryPage"
 
 
 
@@ -59,23 +62,26 @@ function App() {
       <div className="min-h-screen bg-white text-gray-900 relative overflow-hidden">
         
           <SidebarProvider>
-              {!isAdmin && (<Navbar/>)}
+              {!isAdmin && !isAudit && (<Navbar/>)}
               
                 <Routes>
                   <Route path="/signup" element={!user ? <SignUpPage/> : <Navigate to='/' />} />
-                  <Route path="/login" element={!user ? <LoginPage/> :  <Navigate to={isAdmin ? "/dashboard" : isAudit ? "/auditPlanning" : "/"}/>} />
+                  <Route path="/login" element={!user ? <LoginPage/> :  <Navigate to={isAdmin ? "/dashboard" : isAudit ? "/auditDashboard" : "/"}/>} />
                   <Route path="/" element={<HomePage/>} />
 
                   <Route path="/dashboard" element={user?.role === "admin" ? <DashboardPage/> : <Navigate to='/' />} />
                   <Route path="/product" element={user?.role === "admin" ? <ProductPage/> : <Navigate to='/' />} />
                   <Route path="/orders" element={user?.role === "admin" ? <CustomerOrderPage/> : <Navigate to='/' />} />
-                  <Route path='/finishProduct' element={user?.role === "admin" ? <FinishProductPage /> : <Navigate to='/login' />} />
+                  {/* <Route path='/finishProduct' element={user?.role === "admin" ? <FinishProductPage /> : <Navigate to='/login' />} />   not needed anymore */}
                   <Route path='/rawMaterialRequest' element={user?.role === "admin" ? <RawMaterialRequest /> : <Navigate to='/login' />} />
                   <Route path='/invoiceRecords' element={user?.role === "admin" ? <InvoiceRecordsPage /> : <Navigate to='/login' />} />
                   <Route path='/productExecution' element={user?.role === "admin" ? <ProductExecutionPage /> : <Navigate to='/login' />} />
+                   <Route path='/inventory' element={user?.role === "admin" ? <InventoryPage /> : <Navigate to='/login' />} />
 
 
-                  <Route path='/auditPlanning' element={user?.role === "audit" ? <AuditDashboard /> : <Navigate to='/login' />} />
+                  <Route path='/auditDashboard' element={user?.role === "audit" ? <AuditDashboard /> : <Navigate to='/login' />} />
+                  <Route path='/auditHrRequest' element={user?.role === "audit" ? <AuditHrRequestPage /> : <Navigate to='/login' />} />
+                  <Route path='/auditCore' element={user?.role === "audit" ? <AuditCorePage /> : <Navigate to='/login' />} />
 
 
                   <Route path='/category/:category' element={<CategoryPage />} />
@@ -88,7 +94,7 @@ function App() {
                   <Route path='/orderTrackingPage/:orderId' element={user ? <OrderTrackingPage /> : <Navigate to='/login' />} />
                   
                 </Routes>
-                 {!isAdmin && <Footer />}
+                 {!isAdmin && !isAudit && <Footer />}
               <Toaster/>
           </SidebarProvider>
         
