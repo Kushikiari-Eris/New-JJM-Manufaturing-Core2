@@ -4,19 +4,13 @@ const FinishedProductTransferSchema = new mongoose.Schema(
   {
     productId: {
       type: String,
-      required: true,
     },
     productName: { type: String, required: true },
     quantity: { type: Number, required: true, min: 1 },
     transferDate: { type: Date, default: Date.now },
     status: {
       type: String,
-      enum: ["Pending", "In Transit", "Received"],
       default: "Pending",
-    },
-    sender: {
-      type: String,
-      required: true,
     },
     receiverWarehouse: {
       type: String,
@@ -24,10 +18,15 @@ const FinishedProductTransferSchema = new mongoose.Schema(
       default: "Logistic 2 Warehouse",
     },
     receivedBy: {
-      type: String,
-      default: null,
+      type: String, 
     },
-    receivedDate: { type: Date, default: null },
+    receivedDate: { type: Date, },
+    rejectionReason: {
+      type: String,
+    },
+    coreId: {
+      type: String, 
+    },
   },
   { timestamps: true }
 );

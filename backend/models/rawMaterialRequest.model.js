@@ -46,6 +46,10 @@ const rawMaterialRequestSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  coreId: {
+    type: String,
+    default: () => new mongoose.Types.ObjectId().toString(),
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

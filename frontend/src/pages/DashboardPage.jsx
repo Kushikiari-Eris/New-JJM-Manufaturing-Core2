@@ -23,7 +23,7 @@ const AdminPage = () => {
           </div>
 
           {/* Main content with padding to avoid overlap */}
-          <main className="mt-20  overflow-y-auto bg-gray-100 h-full">
+          <main className="mt-20 z-0 overflow-y-auto bg-gray-100 h-full">
             <div className='p-4'>
                 <AnalyticsTab/>
             </div>

@@ -1,15 +1,15 @@
 import express from "express";
 import {
-  createTransfer,
+  createTransferAndSend,
   getAllTransfers,
   getTransferById,
-  markAsReceived,
+  updateRequestStatus,
 } from "../controllers/finishedProductTransfer.controller.js";
 
 const router = express.Router();
 
 // Create a transfer request
-router.post("/", createTransfer);
+router.post("/", createTransferAndSend);
 
 // Get all transfers
 router.get("/", getAllTransfers);
@@ -18,6 +18,6 @@ router.get("/", getAllTransfers);
 router.get("/:id", getTransferById);
 
 // Mark transfer as received
-router.put("/:id/received", markAsReceived);
+router.post("/updateStatus", updateRequestStatus);
 
 export default router;

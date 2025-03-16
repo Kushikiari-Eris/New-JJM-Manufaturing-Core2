@@ -1,6 +1,10 @@
 import ProductExecution from "../models/productExecution.model.js";
 import { gatewayTokenGenerator } from "../middleware/gatewayTokenGenerator.js";
 import axios from "axios";
+import  Order  from "../models/order.model.js";
+import { generateResponse } from "../middleware/geminiservice.js";
+import mongoose from "mongoose";
+import Product from "../models/product.model.js";
 
 // Create a new Product Execution
 export const createProductExecution = async (req, res) => {
@@ -42,6 +46,48 @@ export const getAllProductExecutions = async (req, res) => {
 };
 
 
+// Start Production: Set status to "In Progress" and schedule completion
+export const startProduction = async (req, res) => {
+  try {
+    const { id, duration } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
+
+    // Fetch the execution by ID
+    const execution = await ProductExecution.findById(id);
+    if (!execution) {
+      return res.status(404).json({ message: "Execution not found" });
+    }
+
+    // 🛑 Prevent duplicate "In Progress" updates
+    if (execution.status === "In Progress") {
+      return res.status(400).json({ message: "Production already started for this ID" });
+    }
+
+    // ✅ Update status to "In Progress"
+    execution.status = "In Progress";
+    await execution.save();
+
+    console.log(`🚀 Production started for Execution ID: ${id}`);
+
+    // Complete production after a duration
+    setTimeout(async () => {
+      console.log(`⏳ Completing production for Execution ID: ${id}`);
+
+      execution.status = "Completed";
+      await execution.save()
+      
+    }, duration * 1000);
+
+    res.status(200).json({ message: "Production started", execution });
+  } catch (error) {
+    console.error("Error starting production:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 
 
 
@@ -81,3 +127,25 @@ export const deleteProductExecution = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
+
+export const getGeneratedDataById = async (req, res) => {
+  try {
+    const workOrder = await ProductExecution.findById(req.params.id);
+    if (!workOrder)
+      return res.status(404).json({ message: "Work Order not found" });
+    res.status(200).json(workOrder);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching work order", error: error.message });
+  }
+};
+
+console.log(
+  "Gemini API Key:",
+  process.env.GEMINI_API_KEY ? "Loaded" : "Not Found"
+);
+

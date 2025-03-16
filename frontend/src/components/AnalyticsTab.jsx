@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "../lib/axios";
 import { Users, Package, ShoppingCart, DollarSign } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import LoadingSpinner from "./LoadingSpinner"
 
 const AnalyticsTab = () => {
 	const [analyticsData, setAnalyticsData] = useState({
@@ -31,11 +32,11 @@ const AnalyticsTab = () => {
 	}, []);
 
 	if (isLoading) {
-		return <div>Loading...</div>;
+		return <div><LoadingSpinner/></div>;
 	}
 
 	return (
-		<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
+		<div className='max-w-7xl mx-auto px-4 sm:px-6 mt-10 lg:px-8'>
 			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
 				<AnalyticsCard
 					title='Total Users'
@@ -54,6 +55,12 @@ const AnalyticsTab = () => {
 					value={analyticsData.totalSales.toLocaleString()}
 					icon={ShoppingCart}
 					color='from-emerald-500 to-cyan-700'
+				/>
+				<AnalyticsCard
+					title='Total Revenue'
+					value={`₱${analyticsData.totalRevenue.toLocaleString()}`}
+					icon={DollarSign}
+					color='from-emerald-500 to-lime-700'
 				/>
 				<AnalyticsCard
 					title='Total Revenue'
@@ -108,7 +115,7 @@ const AnalyticsCard = ({ title, value, icon: Icon, color }) => (
 		transition={{ duration: 0.5 }}
 	>
 		<div className='flex justify-between items-center'>
-			<div className='z-10'>
+			<div>
 				<p className='text-emerald-300 text-sm mb-1 font-semibold'>{title}</p>
 				<h3 className='text-white text-3xl font-bold'>{value}</h3>
 			</div>

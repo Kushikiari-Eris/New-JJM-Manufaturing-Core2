@@ -6,9 +6,10 @@ import OrderList from '../components/OrderList'
 import { useOrderStore } from '../stores/useOrderStore'
 import ViewOrderList from '../components/ViewOrderList'
 import OrderTrackingDetails from '../components/OrderTrackingDetails'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 const CustomerOrderPage = () => {
-    const { fetchAllOrder } = useOrderStore()
+    const { fetchAllOrder, loading } = useOrderStore()
 
     useEffect(() => {
         fetchAllOrder();
@@ -45,6 +46,10 @@ const CustomerOrderPage = () => {
         setSelectedOrderId(null);
     };
 
+      if (loading) {
+            return <div><LoadingSpinner/></div>;
+        }
+
   return (
     <>
         <SidebarProvider>
@@ -74,6 +79,7 @@ const CustomerOrderPage = () => {
                 </div>
             </div>
         </SidebarProvider>
+        
     </>
   )
 }

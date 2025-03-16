@@ -8,25 +8,33 @@ const Sidebar = () => {
   const { isCollapsed, toggleSidebar } = useSidebar();
   const { user } = useUserStore();
   const isAudit = user?.role === "audit";
+  const isAuditor = user?.role === "auditor";
 
 
   return (
     
     <aside
-      className={` h-screen bg-white text-gray-900 p-4 transition-all duration-300 border-x ${
+      className={` h-screen  text-gray-900 p-4 transition-all duration-300 border-x ${
         isCollapsed ? "w-16" : "w-64"
-      }`}
+      } ${isAuditor ? "bg-gradient-to-b from-green-400 via-green-500 to-green-700 " : "bg-white"}`}
     >
       <button onClick={toggleSidebar} className=" bg-white border rounded-full p-1 shadow-md transition-all duration-300 hover:scale-110">
         {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
       </button>
 
       <div
-        className={`transition-all flex items-center duration-200 ${
+        className={`transition-all flex items-center gap-x-3 duration-200 ${
           isCollapsed ? "opacity-0 w-0" : "opacity-100 w-14"
-        }`}
+        } ${isAuditor ? "justify-center w-24 ml-14  " : ""}`} // Center the image if isAuditor
       >
-        <img src={jjm} alt="JJM Logo" className="transition-opacity duration-300" /> <span className="text-2xl font-semibold">Dashboard</span>
+        <img
+          src={jjm}
+          alt="JJM Logo"
+          className="transition-opacity duration-300 rounded-lg"
+        />
+        {!isAuditor && (
+          <span className="text-2xl font-semibold">Dashboard</span> // Show text only if not isAuditor
+        )}
       </div>
 
         {isAudit ? (
@@ -55,6 +63,13 @@ const Sidebar = () => {
                       </span>
                     </a>
                 </li>
+                <span
+                  className={`transition-all font-medium duration-200 ${
+                            isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
+                          }`}
+                        >
+                    AUDIT MANAGEMENT
+                </span>
                 <li className="relative group">
                   <a className="flex items-center gap-x-3  py-2 px-1 cursor-pointer  text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-neutral-700 dark:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -65,7 +80,7 @@ const Sidebar = () => {
                         isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
                       }`}
                     >
-                    Audit Request
+                    Audit Requests
                     </span>
                   </a>
 
@@ -74,28 +89,28 @@ const Sidebar = () => {
                     className="absolute left-0 w-48 mt-2 space-y-1 bg-white border border-gray-200 rounded-lg shadow-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 dark:bg-neutral-700 dark:border-gray-600"
                   >
                     <li>
-                      <a href="/auditHrRequest" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600">
+                      <a href="/auditRequestHr" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600">
                         Hr Requests
                       </a>
                     </li>
                     <li>
-                      <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600">
+                      <a href="/auditRequestAdmin" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600">
                         Admin Requests
                       </a>
                     </li>
                     <li>
-                      <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600">
+                      <a href="/auditRequestFinance" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600">
                         Finance Requests
                       </a>
                     </li>
                     <li>
-                      <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600">
+                      <a href="/auditRequestLogistic" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600">
                         Logistic Requests
                       </a>
                     </li>
                     <li>
-                      <a href="/auditCore" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600">
-                        Core
+                      <a href="/auditRequestCore" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-600">
+                        Core Requests
                       </a>
                     </li>
                   </ul>
@@ -130,8 +145,67 @@ const Sidebar = () => {
                 </li>
               </ul>
             </div>
-        ) : (
+        ) : isAuditor ? (
+            <>
+            <div className="hs-accordion-group pb-0 mt-5 w-full flex flex-col flex-wrap">
+        
+            <ul className="space-y-1">
+                <span
+                  className={`transition-all font-bold text-white duration-200 ${
+                            isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
+                          }`}
+                        >
+                    AUDIT MANAGEMENT
+                </span>
+                <li>
+                  <a className="flex items-center gap-x-3 py-2 px-1   text-white rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditDashboard">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
 
+                      <span
+                      className={`transition-all font-medium duration-200 ${
+                            isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
+                          }`}
+                        >
+                        Pending Task
+                      </span>
+                    </a>
+                </li>
+                <li>
+                  <a className="flex items-center gap-x-3 py-2 px-1   text-white rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditDashboard">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
+                      </svg>
+
+                      <span
+                      className={`transition-all font-medium duration-200 ${
+                            isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
+                          }`}
+                        >
+                        Completed Task
+                      </span>
+                    </a>
+                </li>
+                <li>
+                  <a className="flex items-center gap-x-3 py-2 px-1   text-white rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditDashboard">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12" />
+                      </svg>
+                      <span
+                      className={`transition-all font-medium duration-200 ${
+                            isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
+                          }`}
+                        >
+                        Audit Reports
+                      </span>
+                    </a>
+                </li>
+              </ul>
+            </div>
+            </>
+        ) : (
+          <>
             <div className="hs-accordion-group pb-0 mt-5 w-full flex flex-col flex-wrap">
           
             <ul className="space-y-1">
@@ -141,7 +215,7 @@ const Sidebar = () => {
                           isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
                         }`}
                       >
-                  ECOMMERCE
+                  ONLINE STORE
               </span>
               <li>
                 <a className="flex items-center gap-x-3 py-2 px-1   text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/dashboard">
@@ -198,6 +272,21 @@ const Sidebar = () => {
                     PRODUCT EXECUTION
                 </span>
                 <li>
+                  <a className="flex items-center gap-x-3 py-2 px-1  text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/workOrders">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
+                      </svg>
+
+                      <span
+                      className={`transition-all font-medium duration-200 ${
+                          isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
+                        }`}
+                      >
+                        Work Orders
+                      </span>
+                    </a>
+                </li>
+                <li>
                   <a className="flex items-center gap-x-3 py-2 px-1  text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/productExecution">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="size-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 0 1 1.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.559.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.894.149c-.424.07-.764.383-.929.78-.165.398-.143.854.107 1.204l.527.738c.32.447.269 1.06-.12 1.45l-.774.773a1.125 1.125 0 0 1-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.398.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.269-1.45-.12l-.773-.774a1.125 1.125 0 0 1-.12-1.45l.527-.737c.25-.35.272-.806.108-1.204-.165-.397-.506-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.108-1.204l-.526-.738a1.125 1.125 0 0 1 .12-1.45l.773-.773a1.125 1.125 0 0 1 1.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894Z" />
@@ -212,21 +301,13 @@ const Sidebar = () => {
                       </span>
                     </a>
                 </li>
-                <li>
-                  <a className="flex items-center gap-x-3 py-2 px-1  text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/rawMaterialRequest">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
-                      </svg>
-
-                      <span
-                      className={`transition-all font-medium duration-200 ${
+                <span
+                  className={`transition-all font-medium duration-200 ${
                           isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
                         }`}
                       >
-                        Request Raw Material
-                      </span>
-                    </a>
-                </li>
+                    INVENTORY MANAGEMENT
+                </span>
                  <li>
                   <a className="flex items-center gap-x-3 py-2 px-1  text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/inventory">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
@@ -242,8 +323,30 @@ const Sidebar = () => {
                       </span>
                     </a>
                 </li>
+                <span
+                  className={`transition-all font-medium duration-200 ${
+                          isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
+                        }`}
+                      >
+                    MAINTENANCE
+                </span>
+                 <li>
+                  <a className="flex items-center gap-x-3 py-2 px-1  text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/maintenance">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 1 1-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 0 0 4.486-6.336l-3.276 3.277a3.004 3.004 0 0 1-2.25-2.25l3.276-3.276a4.5 4.5 0 0 0-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437 1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008Z" />
+                      </svg>
+                      <span
+                      className={`transition-all font-medium duration-200 ${
+                          isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
+                        }`}
+                      >
+                        Maintenance
+                      </span>
+                    </a>
+                </li>
             </ul>
         </div>
+          </>
         )}
     </aside>
   );

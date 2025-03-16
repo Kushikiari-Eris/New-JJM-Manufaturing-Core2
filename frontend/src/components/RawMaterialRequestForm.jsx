@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useRawMaterialRequestStore } from "../stores/useRawMaterialRequestStore";
 import { Trash2 } from "lucide-react";
+import LoadingSpinner from "./LoadingSpinner";
 
 const RawMaterialRequestForm = () => {
-    const { requests, fetchRequests, addRequest, updateRequestStatus, deleteRequest } = useRawMaterialRequestStore();
+    const { requests, fetchRequests, addRequest, deleteRequest, loading } = useRawMaterialRequestStore();
+
   
     const [formData, setFormData] = useState({
         rawmaterialNumber: "",
@@ -81,54 +83,12 @@ const RawMaterialRequestForm = () => {
         setFormData({ ...formData, material: updatedMaterials });
     };
 
-    
+      if (loading) {
+		return <div><LoadingSpinner/></div>;
+	}
 
     return (
         <>
-            <nav className="flex" aria-label="Breadcrumb">
-                <ol className="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-                    <li className="inline-flex items-center">
-                        <a
-                        href="/dashboard"
-                        className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
-                        >
-                        <svg
-                            className="w-3 h-3 me-2.5"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                        >
-                            <path d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
-                        </svg>
-                        Home
-                        </a>
-                    </li>
-                    <li aria-current="page">
-                        <div className="flex items-center">
-                        <svg
-                            className="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 6 10"
-                        >
-                            <path
-                            stroke="currentColor"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="m1 9 4-4-4-4"
-                            />
-                        </svg>
-                        <span className="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
-                            Request Raw Material
-                        </span>
-                        </div>
-                    </li>
-                </ol>
-            </nav>
-
 
         <dialog id="my_modal_2" className="modal" onClick={(e) => {
             const dialog = document.getElementById("my_modal_2");
@@ -244,7 +204,7 @@ const RawMaterialRequestForm = () => {
 
 
         
-                <div className="relative overflow-x-auto shadow-md sm:rounded-lg mt-10 bg-white">
+                <div className="relative overflow-x-auto  sm:rounded-lg  bg-white">
                         <div className="flex items-center justify-between flex-column flex-wrap md:flex-row space-y-4 md:space-y-0  p-4 bg-white dark:bg-gray-900">
                             <h2 className="font-semibold text-xl">Request Raw Material</h2>
                             <div className="flex items-center gap-3">
@@ -284,9 +244,6 @@ const RawMaterialRequestForm = () => {
                                     Notes
                                 </th>
                                 <th scope="col" className="px-6 py-3">
-                                    Request Status
-                                </th>
-                                <th scope="col" className="px-6 py-3">
                                     Action
                                 </th>
                                 </tr>
@@ -305,8 +262,10 @@ const RawMaterialRequestForm = () => {
                                         {request.department}
                                     </td>
                                     {request.material.map((mat, idx) => (
-                                    <td key={idx} className="px-6 py-4">
-                                        {mat.materialName} - {mat.quantity} {mat.unit}
+                                    <td key={idx} className="px-6 py-4 flex">
+                                        <ul className="list-disc list-inside">
+                                            <li>{mat.materialName} - {mat.quantity} {mat.unit}</li>
+                                        </ul>
                                     </td>
                                     ))}
                                     <td className="px-6 py-4">
@@ -314,13 +273,6 @@ const RawMaterialRequestForm = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                         {request.notes}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                    <div className="flex items-center">
-                                        <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2"> 
-                                        </div> 
-                                        {request.requestStatus}
-                                    </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <button

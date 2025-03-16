@@ -115,27 +115,69 @@ export const getProductsByCategory = async (req, res) =>{
     }
 }
 
-export const toggleFeaturedProduct = async (req, res) =>{
-    try {
-        const product = await Product.findById(req.params.id)
-        if(product){
-            product.isFeatured = !product.isFeatured
-            const updatedProduct = await product.save()
-            await updateFeaturedProductsCache()
-            res.json(updatedProduct)
-        } else {
-            res.status(400).json({ message: "Product not found"})
-        }
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message})
+export const toggleFeaturedProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (product) {
+      product.isFeatured = !product.isFeatured;
+      const updatedProduct = await product.save();
+      await updateFeaturedProductsCache();
+      res.json(updatedProduct);
+    } else {
+      res.status(404).json({ message: "Product not found" });
     }
-}
+  } catch (error) {
+    console.log("Error in toggleFeaturedProduct controller", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 
 async function updateFeaturedProductsCache() {
-    try {
-        const featuredProducts = await Product.find({ isFeatured: true }).lean()
-        await redis.set("featured_products", JSON.stringify(featuredProducts))
-    } catch (error) {
-        console.log("error in update cahce function")
-    }
+  try {
+    // The lean() method  is used to return plain JavaScript objects instead of full Mongoose documents. This can significantly improve performance
+
+    const featuredProducts = await Product.find({ isFeatured: true }).lean();
+    await redis.set("featured_products", JSON.stringify(featuredProducts));
+  } catch (error) {
+    console.log("error in update cache function");
+  }
 }
+
+export const updateStatus = async (req, res) => {
+   try {
+     const { productId, quantity } = req.body;
+
+     if (!productId || quantity === undefined) {
+       return res.status(400).json({ error: "Invalid request data" });
+     }
+
+     // ✅ Ensure product exists
+     const product = await Product.findById(productId);
+     if (!product) {
+       return res.status(404).json({ error: "Product not found" });
+     }
+
+     // ✅ Prevent stock from going negative when decrementing
+     if (quantity < 0 && product.stock < Math.abs(quantity)) {
+       return res.status(400).json({ error: "Not enough stock available" });
+     }
+
+     // ✅ Update stock (increment or decrement)
+     const updatedProduct = await Product.findOneAndUpdate(
+       { _id: productId },
+       { $inc: { stock: quantity } }, // Can be + or -
+       { new: true }
+     );
+
+     res.json({
+       message: `Stock ${
+         quantity > 0 ? "increased" : "decreased"
+       } successfully`,
+       product: updatedProduct,
+     });
+   } catch (error) {
+     console.error("❌ Error updating stock:", error);
+     res.status(500).json({ error: "Internal server error" });
+   }
+};

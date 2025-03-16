@@ -1,4 +1,5 @@
-import AuditHrRequestTable from "../components/AuditHrRequestTable"
+
+import AuditRequestHrTab from "../components/AuditRequestHrTab"
 import Navbar from "../components/Navbar"
 import Sidebar from "../components/Sidebar"
 import { SidebarProvider } from "../components/SidebarContext"
@@ -23,7 +24,7 @@ const AuditHrRequestPage = () => {
           {/* Main content with padding to avoid overlap */}
           <main className="mt-20  overflow-y-auto bg-gray-100 h-full">
             <div className='p-4'>
-                <AuditHrRequestTable/>
+              <AuditRequestHrTab/>
             </div>
           </main>
         </div>

@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from "framer-motion";
 import InventoryRequestedMaterialTab from './InventoryRequestedMaterialTab';
 import FinishProductTable from './FinishProductTable';
+import RawMaterialTab from './RawMaterialTab';
+import RawMaterialRequestForm from '../components/RawMaterialRequestForm';
 
 const InventoryTab = () => {
     const [activeTab, setActiveTab] = useState("tab1");
@@ -9,7 +11,8 @@ const InventoryTab = () => {
     const tabs = [
         { id: "tab1", title: "Finish Product" },
         { id: "tab2", title: "Raw Materials" },
-        { id: "tab3", title: "Requested Raw Materials" },
+        { id: "tab3", title: "Request Raw Materials" },
+        { id: "tab4", title: "Requested Raw Materials" },
     ];
   return (
     <>
@@ -57,9 +60,9 @@ const InventoryTab = () => {
         </ol>
     </nav>
 
-    <div className="w-full max-w-8xl mx-auto p-4">
+    <div className="w-full max-w-8xl mx-auto p-4 mt-10">
             {/* Tabs */}
-            <div className="flex flex-wrap border-b bg-gray-100 rounded-t-lg shadow-sm">
+            <div className="flex flex-wrap border bg-gray-100  shadow-sm">
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
@@ -97,13 +100,23 @@ const InventoryTab = () => {
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.3 }}
                         >
-                            <h2 className="text-2xl font-bold">Tab 2 Content</h2>
-                            <p className="text-lg">This is content for Tab 2.</p>
+                            <RawMaterialTab/>
                         </motion.div>
                     )}
                     {activeTab === "tab3" && (
                         <motion.div
-                            key="tab3"
+                        key="tab3"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}  
+                        >
+                            <RawMaterialRequestForm/>
+                        </motion.div>
+                    )}
+                    {activeTab === "tab4" && (
+                        <motion.div
+                            key="tab4"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}

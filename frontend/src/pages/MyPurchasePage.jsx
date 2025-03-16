@@ -14,6 +14,10 @@ const MyPurchasePage = () => {
         fetchAllOrder();
     }, [fetchAllOrder]);
 
+      if (loading) {
+		return <div><LoadingSpinner/></div>;
+	}
+
   return (
     <>
         <motion.div
@@ -74,25 +78,25 @@ const MyPurchasePage = () => {
                                 </div>
                                 <hr className='h-px bg-gray-200 border-0' />
                                 {order.products.map((item) => (
-                                    <div key={item._id} className='border-b'>
-                                        <div className='flex flex-col sm:flex-row gap-4 p-4 sm:p-8'>
-                                            <img
-                                                className='h-20 w-20 sm:h-20 sm:w-20 object-cover rounded'
-                                                src={item.product.image}
-                                                alt={item.product.name}
-                                            />
-                                            <div className='w-full'>
-                                                <div className='flex justify-between items-center'>
-                                                    <h3 className='font-medium text-sm sm:text-md'>{item.product.name}</h3>
-                                                    <div className='flex gap-2 sm:gap-3 text-sm sm:text-md'>
-                                                        <span className='font-medium'>Qty {item.quantity}</span>
-                                                        <h2 className='font-medium'>₱{item.price}</h2>
-                                                    </div>
+                                <div key={item._id} className='border-b'>
+                                    <div className='flex flex-col sm:flex-row gap-4 p-4 sm:p-8'>
+                                        <img
+                                            className='h-20 w-20 sm:h-20 sm:w-20 object-cover rounded'
+                                            src={item.product?.image || '/default-image.jpg'}  // Fallback to a default image
+                                            alt={item.product?.name || 'Unknown Product'}  // Fallback alt text
+                                        />
+                                        <div className='w-full'>
+                                            <div className='flex justify-between items-center'>
+                                                <h3 className='font-medium text-sm sm:text-md'>{item.product?.name || 'No name available'}</h3>
+                                                <div className='flex gap-2 sm:gap-3 text-sm sm:text-md'>
+                                                    <span className='font-medium'>Qty {item.quantity}</span>
+                                                    <h2 className='font-medium'>₱{item.price}</h2>
                                                 </div>
-                                                <span className='text-gray-500 text-sm'>{item.product.description}</span>
                                             </div>
+                                            <span className='text-gray-500 text-sm'>{item.product?.description || 'No description available'}</span>
                                         </div>
                                     </div>
+                                </div>
                                 ))}
                                 <div className='py-4 px-8 text-sm sm:text-md'>
                                     <h2>{order.status}</h2>

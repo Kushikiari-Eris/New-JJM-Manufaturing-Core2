@@ -3,12 +3,16 @@ import { Trash, Star, Trash2 } from "lucide-react";
 import { useProductStore } from "../stores/useProductStore.js";
 import { useState } from "react";
 import Modal from "./CreateProductForm.jsx";
+import LoadingSpinner from "./LoadingSpinner.jsx";
 
 const ProductsList = () => {
 	const { deleteProduct, toggleFeaturedProduct, products, loading } = useProductStore();
 	const [open, setOpen] = useState(false)
 
 
+	if (loading) {
+		return <div><LoadingSpinner/></div>;
+	}
 	return (
 	<>
 		<Modal open={open} onClose={() => setOpen(false)}/>
@@ -61,7 +65,7 @@ const ProductsList = () => {
 			
 		
 		<motion.div
-		className='"relative overflow-x-auto shadow-md sm:rounded-lg mt-10 bg-white'
+		className='relative overflow-x-auto shadow-md sm:rounded-lg mt-10 bg-white'
 		initial={{ opacity: 0, y: 20 }}
 		animate={{ opacity: 1, y: 0 }}
 		transition={{ duration: 0.8 }}

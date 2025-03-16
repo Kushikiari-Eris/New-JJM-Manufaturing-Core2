@@ -1,42 +1,44 @@
 import mongoose from "mongoose";
 
-const productExecutionSchema = new mongoose.Schema({
-  workOrderId: {
-    type: String,
-    required: true,
-  },
-  creationDate: {
-    type: Date,
-    default: Date.now,
-  },
-  dueDate: {
-    type: Date,
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: ["Pending", "In Progress", "Completed", "Cancelled"],
-    default: "Pending",
-  },
-  productName: {
-    type: String,
-    required: true,
-  },
-  productId: {
-    type: String,
-    required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-  },
-  material: [
-    {
-      itemName: { type: String, required: true },
-      quantity: { type: Number, required: true },
+const productExecutionSchema = new mongoose.Schema(
+  {
+    orderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Order",
+      required: true,
     },
-  ],
-});
+    dueDate: { type: Date, required: true },
+    productName: { type: String, required: true },
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    quantity: { type: Number, required: true },
+    assignedTo: {
+      type: String,
+      enum: ["Machine A", "Machine B", "Machine C", "Machine D"],
+      required: true,
+    },
+    materials: [
+      {
+        materialId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "RawMaterial", // ✅ Now references the RawMaterial collection
+          required: true,
+        },
+        materialName: { type: String, required: true },
+        quantity: { type: Number, required: true },
+      },
+    ],
+    status: {
+      type: String,
+      enum: ["Pending", "In Progress", "Completed"],
+      default: "Pending",
+    },
+  },
+  { timestamps: true }
+);
 
 const ProductExecution = mongoose.model(
   "ProductExecution",
@@ -44,3 +46,7 @@ const ProductExecution = mongoose.model(
 );
 
 export default ProductExecution;
+
+
+
+

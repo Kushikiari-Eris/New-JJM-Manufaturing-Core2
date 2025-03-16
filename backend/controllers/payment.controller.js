@@ -4,6 +4,10 @@ import Order from "../models/order.model.js"
 import OrderTracker from "../models/orderTracker.model.js";
 import { gatewayTokenGenerator } from "../middleware/gatewayTokenGenerator.js";
 import axios from "axios";
+import { generateResponse } from "../middleware/geminiservice.js";
+import ProductExecution from "../models/productExecution.model.js";
+import mongoose from "mongoose";
+import RawMaterial from "../models/rawMaterial.model.js";
 
 export const stripeCheckoutSession = async (req, res) => {
   try {
@@ -148,7 +152,6 @@ export const stripeCheckoutSession = async (req, res) => {
 
 
 
-
 export const codCheckoutSession = async (req, res) => {
   try {
     const { products, shippingAddress, totalAmount, subTotal, shippingFee } =
@@ -180,40 +183,165 @@ export const codCheckoutSession = async (req, res) => {
     // 🔹 Create an OrderTracker entry
     const newOrderTracker = new OrderTracker({
       orderId: newOrder._id,
-      orderStatus: "Pending", // Default status when order is placed
+      orderStatus: "Pending",
     });
 
     await newOrderTracker.save();
 
+    // 🔹 **Trigger AI to Generate Work Order**
+    try {
+       const allMaterials = await RawMaterial.find();
+
+       if (!allMaterials.length) {
+         throw new Error("❌ No raw materials found in the database.");
+       }
+
+      const prompt = `
+Generate a work order for the following COD order:
+- Order ID: ${newOrder._id}
+- Products: ${products
+        .map((p) => `${p.name} (ID: ${p._id}, Quantity: ${p.quantity})`)
+        .join(", ")}
+- Assign to one of these machines: Machine A, Machine B, Machine C, Machine D
+- Include required materials
+- Set status to 'Pending'
+
+Respond only with a valid JSON object. Do not include any extra text.
+
+Output format:
+{
+  "workOrders": [
+    {
+      "orderId": "Order ID",
+      "dueDate": "YYYY-MM-DD",
+      "productName": "Product Name",
+      "productId": "Product ID",
+      "quantity": "Product Quantity",
+      "assignedTo": "Machine A/B/C/D",
+      "materials": [
+        {"materialName": "Material 1", "quantity": Quantity},
+        {"materialName": "Material 2", "quantity": Quantity}
+      ],
+      "status": "Pending"
+    }
+  ]
+}
+      `;
+
+      const aiResponse = await generateResponse(prompt);
+
+      // 🔹 Extract JSON from AI Response
+      const jsonStart = aiResponse.indexOf("{");
+      const jsonEnd = aiResponse.lastIndexOf("}");
+
+      if (jsonStart === -1 || jsonEnd === -1) {
+        throw new Error("AI response does not contain valid JSON.");
+      }
+
+      const jsonString = aiResponse.substring(jsonStart, jsonEnd + 1);
+
+      let workOrderData;
+      try {
+        workOrderData = JSON.parse(jsonString);
+      } catch (jsonError) {
+        console.error("❌ Invalid JSON received from AI:", aiResponse);
+        throw new Error("Failed to parse AI response as JSON.");
+      }
+
+      if (
+        !Array.isArray(workOrderData.workOrders) ||
+        workOrderData.workOrders.length === 0
+      ) {
+        throw new Error("Invalid work orders format received from AI.");
+      }
+
+      for (const workOrderItem of workOrderData.workOrders) {
+        if (!workOrderItem.productName || !workOrderItem.quantity) {
+          console.error(
+            "❌ Missing required fields in work order:",
+            workOrderItem
+          );
+          continue; // Skip invalid work order
+        }
+
+        // 🔹 Check if work order already exists
+        const existingWorkOrder = await ProductExecution.findOne({
+          orderId: newOrder._id,
+          productId: workOrderItem.productId,
+        });
+
+        if (existingWorkOrder) {
+          console.log(
+            `🔹 Work order for ${workOrderItem.productName} already exists. Skipping.`
+          );
+          continue; // Skip duplicate
+        }
+
+        // 🔹 Ensure materials have correct structure
+        if (!Array.isArray(workOrderItem.materials)) {
+          throw new Error("Invalid materials format received from AI.");
+        }
+
+         // 🛠 **Select 2-4 Random Raw Materials**
+        const randomMaterials = allMaterials
+          .sort(() => 0.5 - Math.random()) // Shuffle array
+          .slice(0, Math.floor(Math.random() * 3) + 2) // Pick 2-4 materials
+          .map((material) => ({
+            materialId: material._id, // Ensure materialId is included
+            materialName: material.materialName,
+            quantity: Math.floor(Math.random() * 10) + 1, // Random quantity (1-10)
+          }));
+
+        console.log("🔹 Selected Random Materials:", randomMaterials);
+
+        // 🔹 Create and Save Work Order
+        const workOrder = new ProductExecution({
+          orderId: newOrder._id,
+          dueDate: new Date(workOrderItem.dueDate),
+          productName: workOrderItem.productName,
+          productId: new mongoose.Types.ObjectId(workOrderItem.productId),
+          quantity: workOrderItem.quantity,
+          assignedTo: workOrderItem.assignedTo,
+          materials: randomMaterials,
+          status: "Pending",
+        });
+
+        await workOrder.save();
+        console.log("✅ AI-generated Work Order saved:", workOrder);
+      }
+    } catch (aiError) {
+      console.error("❌ Error generating work order with AI:", aiError.message);
+    }
+
     // Clean and format the contactInformation (phone number)
     const cleanPhoneNumber = newOrder.shippingAddress.phone.replace(
-      /[^0-9]/g, // This regex removes anything that is not a digit
+      /[^0-9]/g,
       ""
     );
 
-    // Integrating Finance System
+    // 🔹 Integrating Finance System
     try {
-      const token = gatewayTokenGenerator(); // Assuming you have this token generator for authentication
+      const token = gatewayTokenGenerator();
       const payload = {
-        orderNumber: newOrder._id.toString(), // Convert to string
-        customerId: newOrder.user.toString(), // Convert to string
-        customerName: newOrder.shippingAddress.name, // Name from shipping address
+        orderNumber: newOrder._id.toString(),
+        customerId: newOrder.user.toString(),
+        customerName: newOrder.shippingAddress.name,
         orders: products.map((product) => ({
-          itemName: product.name, // Product name
+          itemName: product.name,
           quantity: product.quantity,
           price: product.price,
         })),
-        paymentMethod: newOrder.paymentMethod, // Payment method is COD (Cash on Delivery)
-        contactInformation: cleanPhoneNumber, // Cleaned phone number
-        shippingMethod: newOrder.shippingMethod, // Lalamove
-        deliveryDate: new Date(new Date().setDate(new Date().getDate() + 3)) // Assuming 3 days from now for delivery
+        paymentMethod: newOrder.paymentMethod,
+        contactInformation: cleanPhoneNumber,
+        shippingMethod: newOrder.shippingMethod,
+        deliveryDate: new Date(new Date().setDate(new Date().getDate() + 3))
           .toISOString()
-          .slice(0, 10), // Format the date as yy-mm-dd
-        customerAddress: newOrder.shippingAddress.city, // Assuming city is available in shipping address
-        orderDate: newOrder.createdAt.toISOString().slice(0, 10), // Adding the order creation date (formatted as yy-mm-dd)
+          .slice(0, 10),
+        customerAddress: newOrder.shippingAddress.city,
+        orderDate: newOrder.createdAt.toISOString().slice(0, 10),
       };
 
-      console.log("Sending to Finance:", payload); // Log payload for debugging
+      console.log("Sending to Finance:", payload);
 
       const financeResponse = await axios.post(
         `${process.env.API_GATEWAY_URL}/finance/order-information`,
@@ -231,10 +359,12 @@ export const codCheckoutSession = async (req, res) => {
         error: financeError.message,
       });
     }
+    
 
     res.status(201).json({
       success: true,
-      message: "Order placed successfully and tracking initialized.",
+      message:
+        "Order placed successfully, tracking initialized, and work order generated.",
       orderId: newOrder._id,
       orderTrackerId: newOrderTracker._id,
     });
@@ -284,12 +414,11 @@ export const checkoutSuccess = async (req, res) => {
       : new Date();
     deliveryDate.setDate(deliveryDate.getDate() + 3);
 
-    
-    const formattedDeliveryDate = new Date(deliveryDate); 
+    const formattedDeliveryDate = new Date(deliveryDate);
 
     const shippingAddress = session.customer_details.address;
     const userId = session.metadata.userId;
-    const customerName = session.metadata.customerName; 
+    const customerName = session.metadata.customerName;
     const products = JSON.parse(session.metadata.products);
 
     const subtotal = products.reduce(
@@ -299,10 +428,10 @@ export const checkoutSuccess = async (req, res) => {
 
     const newOrder = new Order({
       user: userId,
-      customerName, 
+      customerName,
       products: products.map((product) => ({
         product: product.id,
-        name: product.name, 
+        name: product.name,
         quantity: product.quantity,
         price: product.price,
       })),
@@ -338,6 +467,125 @@ export const checkoutSuccess = async (req, res) => {
 
     await newOrderTracker.save();
 
+    // 🔹 **Trigger AI to Generate Work Order**
+try {
+  // Fetch all raw materials from the database
+  const allMaterials = await RawMaterial.find();
+
+  if (!allMaterials.length) {
+    throw new Error("❌ No raw materials found in the database.");
+  }
+
+  const prompt = `
+Generate a work order for the following order:
+- Order ID: ${newOrder._id}
+- Products: ${products
+    .map((p) => `${p.name} (ID: ${p.id}, Quantity: ${p.quantity})`)
+    .join(", ")}
+- Assign to one of these machines: Machine A, Machine B, Machine C, Machine D
+- Include required materials
+- Set status to 'Pending'
+
+Respond only with a valid JSON object. Do not include any extra text.
+
+Output format:
+{
+  "workOrders": [
+    {
+      "orderId": "Order ID",
+      "dueDate": "YYYY-MM-DD",
+      "productName": "Product Name",
+      "productId": "Product ID",
+      "quantity": "Product Quantity",
+      "assignedTo": "Machine A/B/C/D",
+      "materials": [
+        {"materialName": "Material 1", "quantity": Quantity},
+        {"materialName": "Material 2", "quantity": Quantity}
+      ],
+      "status": "Pending"
+    }
+  ]
+}
+  `;
+
+  const aiResponse = await generateResponse(prompt);
+
+  // 🔹 Extract JSON from AI Response
+  const jsonStart = aiResponse.indexOf("{");
+  const jsonEnd = aiResponse.lastIndexOf("}");
+
+  if (jsonStart === -1 || jsonEnd === -1) {
+    throw new Error("AI response does not contain valid JSON.");
+  }
+
+  const jsonString = aiResponse.substring(jsonStart, jsonEnd + 1);
+
+  let workOrderData;
+  try {
+    workOrderData = JSON.parse(jsonString);
+  } catch (jsonError) {
+    console.error("❌ Invalid JSON received from AI:", aiResponse);
+    throw new Error("Failed to parse AI response as JSON.");
+  }
+
+  if (
+    !Array.isArray(workOrderData.workOrders) ||
+    workOrderData.workOrders.length === 0
+  ) {
+    throw new Error("Invalid work orders format received from AI.");
+  }
+
+  for (const workOrderItem of workOrderData.workOrders) {
+    if (!workOrderItem.productName || !workOrderItem.quantity) {
+      console.error("❌ Missing required fields in work order:", workOrderItem);
+      continue; // Skip invalid work order
+    }
+
+    // 🔹 Check if work order already exists
+    const existingWorkOrder = await ProductExecution.findOne({
+      orderId: workOrderItem.orderId,
+      productId: workOrderItem.productId,
+    });
+
+    if (existingWorkOrder) {
+      console.log(
+        `🔹 Work order for ${workOrderItem.productName} already exists. Skipping.`
+      );
+      continue; // Skip duplicate
+    }
+
+    // 🛠 **Select 2-4 Random Raw Materials**
+    const randomMaterials = allMaterials
+      .sort(() => 0.5 - Math.random()) // Shuffle array
+      .slice(0, Math.floor(Math.random() * 3) + 2) // Pick 2-4 materials
+      .map((material) => ({
+        materialId: material._id, // Ensure materialId is included
+        materialName: material.materialName,
+        quantity: Math.floor(Math.random() * 10) + 1, // Random quantity (1-10)
+      }));
+
+    console.log("🔹 Selected Random Materials:", randomMaterials);
+
+    // 🔹 Create and Save Work Order
+    const workOrder = new ProductExecution({
+      orderId: newOrder._id,
+      dueDate: new Date(workOrderItem.dueDate),
+      productName: workOrderItem.productName,
+      productId: new mongoose.Types.ObjectId(workOrderItem.productId),
+      quantity: workOrderItem.quantity,
+      assignedTo: workOrderItem.assignedTo,
+      materials: randomMaterials, // Assign random materials
+      status: "Pending",
+    });
+
+    await workOrder.save();
+    console.log("✅ AI-generated Work Order saved:", workOrder);
+  }
+} catch (aiError) {
+  console.error("❌ Error generating work order with AI:", aiError.message);
+}
+
+    //Sending the Data to finance
     try {
       const token = gatewayTokenGenerator();
       const financeResponse = await axios.post(
@@ -347,15 +595,15 @@ export const checkoutSuccess = async (req, res) => {
           customerId: userId,
           customerName,
           orders: products.map((product) => ({
-            itemName: product.name, 
+            itemName: product.name,
             quantity: product.quantity,
             price: product.price,
           })),
           paymentMethod: newOrder.paymentMethod,
           contactInformation: newOrder.shippingAddress.phone,
-          orderDate: newOrder.createdAt.toISOString().slice(0, 10), 
+          orderDate: newOrder.createdAt.toISOString().slice(0, 10),
           shippingMethod,
-          deliveryDate: formattedDeliveryDate.toISOString().slice(0, 10), 
+          deliveryDate: formattedDeliveryDate.toISOString().slice(0, 10),
           customerAddress: newOrder.shippingAddress.city,
         },
         {
@@ -367,6 +615,7 @@ export const checkoutSuccess = async (req, res) => {
     } catch (financeError) {
       console.error(" Error sending order to Finance:", financeError.message);
     }
+    
 
     res.status(200).json({
       success: true,
@@ -375,8 +624,8 @@ export const checkoutSuccess = async (req, res) => {
       orderId: newOrder._id,
       orderTrackerId: newOrderTracker._id,
       shippingMethod,
-      deliveryDate: formattedDeliveryDate.toISOString().slice(0, 10), 
-      orderDate: newOrder.createdAt.toISOString().slice(0, 10), 
+      deliveryDate: formattedDeliveryDate.toISOString().slice(0, 10),
+      orderDate: newOrder.createdAt.toISOString().slice(0, 10),
     });
   } catch (error) {
     console.error(" Error in checkoutSuccess:", error.message);

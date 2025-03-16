@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useOrderStore } from '../stores/useOrderStore'
 import { useParams } from 'react-router-dom';
+import LoadingSpinner from './LoadingSpinner';
 
 const ViewOrderList = ({ orderId, onClose }) => {
 
@@ -18,6 +19,10 @@ const ViewOrderList = ({ orderId, onClose }) => {
     await updateStatus(orderId, 'Confirmed'); 
     onClose(); 
   };
+
+    if (loading) {
+      return <div><LoadingSpinner/></div>;
+    }
  
   return (
     <>

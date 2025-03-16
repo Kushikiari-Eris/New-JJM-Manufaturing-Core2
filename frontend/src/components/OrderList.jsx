@@ -3,9 +3,10 @@ import { motion } from "framer-motion";
 import { Eye, Pencil } from "lucide-react";
 import { useOrderStore } from "../stores/useOrderStore.js";
 import ReactPaginate from "react-paginate";
+import LoadingSpinner from "./LoadingSpinner.jsx";
 
 const OrderList = ({ openModal, openSecondModal }) => {
-  const { orders } = useOrderStore();
+  const { orders, loading } = useOrderStore();
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 10;
 
@@ -20,6 +21,10 @@ const OrderList = ({ openModal, openSecondModal }) => {
       setCurrentPage(pageNumber);
     }
   };
+
+    if (loading) {
+      return <div><LoadingSpinner/></div>;
+    }
 
   return (
     <>

@@ -17,6 +17,7 @@
     "axios": "^1.7.9",
     "framer-motion": "^11.16.1",
     "js-cookie": "^3.0.5",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.469.0",
     "react": "^18.3.1",
     "react-confetti": "^6.2.2",
@@ -25,6 +26,7 @@
     "react-paginate": "^8.3.0",
     "react-router-dom": "^7.1.1",
     "recharts": "^2.15.1",
+    "socket.io": "^4.8.1",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

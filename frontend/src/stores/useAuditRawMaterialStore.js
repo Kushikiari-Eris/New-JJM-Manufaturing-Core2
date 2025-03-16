@@ -25,15 +25,18 @@ const useAuditStore = create((set) => ({
     }
   },
 
-  updateAudit: async (id, updatedData) => {
+  updateAuditStatus: async (auditId, newStatus) => {
     try {
-      const res = await axios.put(`/auditLogistic1/${id}`, updatedData);
+      const res = await axios.put(`/auditLogistic1/${auditId}`, {
+        status: newStatus,
+      }); // Use axios
       set((state) => ({
         audits: state.audits.map((audit) =>
-          audit._id === id ? res.data : audit
+          audit._id === auditId ? { ...audit, status: res.data.status } : audit
         ),
       }));
     } catch (error) {
+      console.error("Error updating audit status:", error);
       set({ error: error.message });
     }
   },

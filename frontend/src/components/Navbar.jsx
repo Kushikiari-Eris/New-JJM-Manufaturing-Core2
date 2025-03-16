@@ -4,11 +4,13 @@ import { useState } from "react";
 import { useUserStore } from "../stores/useUserStore";
 import { useCartStore } from "../stores/useCartStore";
 import { useSidebar } from "./SidebarContext";
+import Notification from "./Notification";
 
 const Navbar = () => {
   const { user, logout } = useUserStore();
   const isAdmin = user?.role === "admin";
   const isAudit = user?.role === "audit";
+  const isAuditor = user?.role === "auditor";
   const { cart } = useCartStore();
   const { isCollapsed } = useSidebar();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -27,18 +29,21 @@ const Navbar = () => {
   return (
     <>
       {/* Navbar - Fixed at the top */}
-      <div className="bg-white shadow p-4 fixed top-0 w-full z-50">
+      <div className={`bg-white shadow p-4 fixed top-0 w-full z-50 ${isAuditor ? "bg-gradient-to-r from-green-400 via-green-500 to-green-700 " : ""}`}>
         <nav className="flex justify-between items-center">
           {/* Logo - Adjusts with sidebar and remains centered on mobile */}
           {isAdmin ? (
+            <>
             <Link
               to="/dashboard"
               className={`text-2xl font-bold text-green-500 flex items-center space-x-2 transition-all duration-300 ${
                 isCollapsed ? "ml-16" : "ml-64"
               }`}
             >
-              CORE DEPARTMENT
+              JJM ADMIN
             </Link>
+            
+            </>
           ) : isAudit ? (
             <Link
               to="/auditDashboard"
@@ -46,7 +51,16 @@ const Navbar = () => {
                 isCollapsed ? "ml-16" : "ml-64"
               }`}
             >
-              CORE AUDIT
+              JJM AUDIT ADMIN
+            </Link>
+          ) : isAuditor ? (
+            <Link
+              to="/auditorDashboard"
+               className={`text-2xl font-bold text-white flex items-center space-x-2 transition-all duration-300 ${
+                isCollapsed ? "ml-16" : "ml-64"
+              }`}
+            >
+              JJM AUDITOR
             </Link>
           ) : (
             <Link
@@ -68,17 +82,18 @@ const Navbar = () => {
           </button>
 
           
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2">
 
             {user ? (
               <>
-               {!isAdmin && !isAudit && (
+               {!isAdmin && !isAudit && !isAuditor && (
                   <Link to="/" className="text-gray-600 hover:text-emerald-400 transition">
                     Home
                   </Link>
                 )}
 
-                {!isAdmin && !isAudit && (
+                {!isAdmin && !isAudit && !isAuditor && (
+                  <>
                   <Link to="/cart" className="relative group text-gray-600 hover:text-emerald-400 transition">
                     <ShoppingCart size={20} className="inline-block mr-1 group-hover:text-emerald-400" />
                     <span className="hidden sm:inline">Cart</span>
@@ -88,7 +103,14 @@ const Navbar = () => {
                       </span>
                     )}
                   </Link>
+                  </>
                 )}
+
+              
+                
+
+                {(isAdmin || isAudit) && <Notification />}
+
 
                 <div className="dropdown dropdown-end">
                   <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
@@ -106,7 +128,7 @@ const Navbar = () => {
                         <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">Email: {user.email}</span>
                       </div>
                       <hr className="h-px mb-2 bg-gray-200 border-0 dark:bg-gray-700"></hr>
-                    {!isAdmin && !isAudit &&
+                    {!isAdmin && !isAudit && !isAuditor &&
                     <li>
                       <a href="/purchasePage">My Purchase</a>
                     </li>
@@ -127,7 +149,7 @@ const Navbar = () => {
                   <LogIn size={18} className="mr-2" />
                   <span className="hidden sm:inline">Login</span>
                 </Link>
-
+                
                 
               </>
             )}
@@ -138,13 +160,13 @@ const Navbar = () => {
         {/* Mobile Menu - Shown When Open */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 flex flex-col bg-white shadow-lg p-4 absolute top-full right-0 w-full border-t">
-            {!isAdmin && !isAudit && (
+            {!isAdmin && !isAudit && !isAuditor && (
               <Link to="/" className="py-2 text-gray-600 hover:text-emerald-400 transition" onClick={() => setMobileMenuOpen(false)}>
                 Home
               </Link>
             )}
 
-            {!isAdmin && !isAudit && user && (
+            {!isAdmin && !isAudit && !isAuditor && user && (
               <Link to="/cart" className="relative py-2 text-gray-600 hover:text-emerald-400 transition" onClick={() => setMobileMenuOpen(false)}>
                 <ShoppingCart size={20} className="inline-block mr-1 group-hover:text-emerald-400" />
                 Cart ({cart.length})

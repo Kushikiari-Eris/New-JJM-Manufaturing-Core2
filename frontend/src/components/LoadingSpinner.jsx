@@ -1,15 +1,12 @@
-const LoadingSpinner = () =>{
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-opacity-50">
-            <div className="relative">
-                <div className="w-20 h-20 border-emerald-200 border-2 rounded-full">
-                    <div className="w-20 h-20 border-emerald-500 border-t-2 animate-spin rounded-full absolute left-0 top-0">
-                        <div className="sr-only">Loading</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    )
-}
+import Lottie from "lottie-react";
+import loadingAnimation from "../assets/Loading.json"; 
 
-export default LoadingSpinner
+const LoadingSpinner = () => {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-opacity-50">
+      <Lottie animationData={loadingAnimation} loop={true} style={{ width: 150, height: 150 }} />
+    </div>
+  );
+};
+
+export default LoadingSpinner;

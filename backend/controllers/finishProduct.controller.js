@@ -1,5 +1,7 @@
 import FinishProduct from "../models/finishProduct.model.js";
 import cloudinary from "../config/cloudinary.js";
+import { gatewayTokenGenerator } from "../middleware/gatewayTokenGenerator.js";
+import axios from "axios";
 
 // Create a new finished product
 export const createFinishedProduct = async (req, res) => {
@@ -31,6 +33,11 @@ export const createFinishedProduct = async (req, res) => {
   
 };
 
+
+                
+
+            
+
 // Fetch all finished products
 export const getFinishedProducts = async (req, res) => {
   try {
@@ -54,4 +61,5 @@ export const getFinishedProductById = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error fetching product", error });
   }
+  
 };

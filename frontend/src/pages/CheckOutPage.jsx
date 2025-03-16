@@ -14,6 +14,8 @@ const CheckOutPage = () => {
     const { total, subtotal, coupon, cart, clearCart, loading } = useCartStore();
     const [paymentMethod, setPaymentMethod] = useState("COD");
     const navigate = useNavigate();
+    const [loadingButton, setLoadingButton] = useState(false);
+
 
    const [formData, setFormData] = useState({
         name: "",
@@ -116,11 +118,18 @@ const CheckOutPage = () => {
     }
 };
 
-    const handlePlaceOrder = () => {
-        if (paymentMethod === "COD") {
-            handleCODPayment();
-        } else {
-            handleStripePayment();
+    const handlePlaceOrder = async () => {
+        if (loadingButton) return; // Prevent multiple clicks
+        setLoadingButton(true); // Start loading
+
+        try {
+            if (paymentMethod === "COD") {
+                await handleCODPayment();
+            } else {
+                await handleStripePayment();
+            }
+        } finally {
+            setLoadingButton(false); // Stop loading
         }
     };
 
@@ -277,16 +286,27 @@ const CheckOutPage = () => {
                             </div>
                         </div>
                     </div>
-                    <div>
+                        <div>
                         <motion.button
-                            className='flex w-full items-center justify-center rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-300'
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
+                            className={`w-full px-6 py-3 rounded-lg font-medium text-white ${
+                                loadingButton ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
+                            }`}
+                            disabled={loadingButton}
                             onClick={handlePlaceOrder}
                         >
-                            PLACE ORDER
+                            {loadingButton ? (
+                                <span className="flex items-center justify-center">
+                                    <svg className="w-5 h-5 animate-spin mr-2 text-white" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                    </svg>
+                                    Processing...
+                                </span>
+                            ) : (
+                                "Place Order"
+                            )}
                         </motion.button>
-                    </div>
+                        </div>
                 </motion.div>
             </div>
 

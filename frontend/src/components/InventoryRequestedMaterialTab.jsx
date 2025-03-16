@@ -1,105 +1,194 @@
-import React, { useEffect } from 'react'
-import useAuditStore from '../stores/useAuditRawMaterialStore';
-
+import React, { useEffect, useState } from "react";
+import useAuditStore from "../stores/useAuditRawMaterialStore";
+import useRawMaterialStore from "../stores/useRawMaterialStore";
+import LoadingSpinner from "./LoadingSpinner";
 
 const InventoryRequestedMaterialTab = () => {
-    const { audits, loading, fetchAudits, deleteAudit } = useAuditStore();
+  const { audits, loading, fetchAudits, updateAuditStatus } = useAuditStore();
+  const { addRawMaterial } = useRawMaterialStore();
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(5); // Adjust as needed
+    const [paginatedRequests, setPaginatedRequests] = useState([]);
+
+    const totalPages = Math.ceil(audits.length / itemsPerPage);
+
+    const paginate = (pageNumber) => {
+        if (pageNumber >= 1 && pageNumber <= totalPages) {
+            setCurrentPage(pageNumber);
+        }
+    };
+
+  useEffect(() => {
+    fetchAudits();
+  }, [fetchAudits]);
+
+    // Update paginatedRequests whenever requests or currentPage changes
     useEffect(() => {
-        fetchAudits();
-    }, [fetchAudits]);
+        const indexOfLastItem = currentPage * itemsPerPage;
+        const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+        const currentItems = audits.slice(indexOfFirstItem, indexOfLastItem);
+        setPaginatedRequests(currentItems);
+    }, [audits, currentPage]);
+
+
+
+const handleApprove = async (audit) => {
+    if (!audit.rawMaterial || audit.rawMaterial.length === 0) {
+        alert("No materials to approve.");
+        return;
+    }
+
+    audit.rawMaterial.forEach((mat) => {
+        addRawMaterial({
+            materialName: mat.itemName,
+            quantity: mat.quantity,
+            unit: mat.unit,
+        });
+    });
+
+    await updateAuditStatus(audit._id, "Approved");
+    console.log("Audit updated:", audit._id);
+};
+
+      if (loading) {
+            return <div><LoadingSpinner/></div>;
+        }
   return (
     <>
-    
-    <div className="relative overflow-x-auto  bg-white">
-            <div className="flex items-center justify-between flex-column flex-wrap md:flex-row p-4 ">
-                <div>
-                    <div>
-                        <h2 className="font-semibold text-xl">Requested Raw Materials</h2>
-                    </div>
-                </div>
-                <label htmlFor="table-search" className="sr-only">Search</label>
-                <div className="relative">
-                    <div className="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
-                        <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                        </svg>
-                    </div>
-                    <input type="text" id="table-search-users" className="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search for users"/>
-                </div>
+      <div className="relative overflow-x-auto bg-white">
+        <div className="flex items-center justify-between flex-column flex-wrap md:flex-row p-4">
+          <h2 className="font-semibold text-xl">Requested Raw Materials</h2>
+          <div className="relative">
+            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+              <svg
+                className="w-4 h-4 text-gray-500"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                />
+              </svg>
             </div>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" className="px-6 py-3">
-                            Sender
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Materials
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Quality
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Status
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Actions
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                {audits.length > 0 ? (
-                    audits.map((audit) => (
-                    <tr
-                        key={audit._id}
-                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
-                    >
-                        <td className="px-6 py-4 text-base font-semibold text-gray-900">
-                        {audit.sender}
-                        </td>
-                        {audit.rawMaterial.length > 0 ? (
-                        audit.rawMaterial.map((mat, index) => (
-                            <td className="px-6 py-4" key={index}>
-                            {mat.itemName} - {mat.quantity} {mat.unit}
-                            </td>
-                        ))
-                        ) : (
-                        <td className="px-6 py-4">No Materials</td>
-                        )}
-                        <td className="px-6 py-4">{audit.qualityCheck}</td>
-                        <td className="px-6 py-4">{audit.status}</td>
-                        <td className="px-6 py-4">
-                        <a
-                            href="#"
-                            className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                        >
-                            Edit
-                        </a>
-                        </td>
-                    </tr>
-                    ))
-                ) : (
-                    <tr>
-                    <td
-                        colSpan="5"
-                        className="px-6 py-4 text-center text-gray-500 dark:text-gray-400"
-                    >
-                        No task available
-                    </td>
-                    </tr>
-                )}
-                </tbody>
-            </table>
+            <input
+              type="text"
+              className="block p-2 ps-10 text-sm border border-gray-300 rounded-lg w-80 bg-gray-50"
+              placeholder="Search for users"
+            />
+          </div>
         </div>
-      )}
-    </div>
-    </>
-  )
-}
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-gray-500">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3">Sender</th>
+                  <th className="px-6 py-3">Materials</th>
+                  <th className="px-6 py-3">Status</th>
+                  <th className="px-6 py-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedRequests.length > 0 ? (
+                  paginatedRequests.map((audit) => (
+                    <tr
+                      key={audit._id}
+                      className="bg-white border-b hover:bg-gray-50"
+                    >
+                      <td className="px-6 py-4 font-semibold">{audit.sender}</td>
+                      <td className="px-6 py-4">
+                        {audit.rawMaterial.length > 0 ? (
+                          audit.rawMaterial.map((mat, index) => (
+                            <div key={index}>
+                              {mat.itemName} - {mat.quantity} {mat.unit}
+                            </div>
+                          ))
+                        ) : (
+                          <span>No Materials</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">{audit.status}</td>
+                      <td className="px-6 py-4">
+                        {audit.status !== "Approved" ? (
+                          <button
+                            onClick={() => handleApprove(audit)}
+                            className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700"
+                          >
+                            Approve
+                          </button>
+                        ) : (
+                          <span className="text-green-500">Approved</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="4"
+                      className="px-6 py-4 text-center text-gray-500"
+                    >
+                      No Raw Materials Available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+             <div className="flex flex-wrap justify-center items-center space-x-2 py-4 bg-white dark:bg-gray-900 px-4 sm:px-6">
+                <button
+                    className={`px-4 py-2 rounded-md text-gray-600 dark:text-gray-300 transition-all duration-300 ${
+                    currentPage === 1
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                >
+                    Prev
+                </button>
 
-export default InventoryRequestedMaterialTab
+                <div className="flex overflow-x-auto gap-1 px-2">
+                    {[...Array(totalPages)].map((_, index) => (
+                    <button
+                        key={index}
+                        className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
+                        currentPage === index + 1
+                            ? "bg-blue-500 text-white"
+                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                        }`}
+                        onClick={() => paginate(index + 1)}
+                    >
+                        {index + 1}
+                    </button>
+                    ))}
+                </div>
+
+                <button
+                    className={`px-4 py-2 rounded-md text-gray-600 dark:text-gray-300 transition-all duration-300 ${
+                    currentPage === totalPages
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                >
+                    Next
+                </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default InventoryRequestedMaterialTab;

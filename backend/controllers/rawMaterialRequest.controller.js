@@ -25,6 +25,7 @@ export const createRequest = async (req, res) => {
         notes: newRequest.notes,
         priority: newRequest.priority,
         approvalId: newRequest._id,
+        coreId: newRequest.coreId,
       };
 
      
@@ -42,6 +43,7 @@ export const createRequest = async (req, res) => {
         logisticsError.message
       );
     }
+   
 
     
     res.status(201).json(newRequest);
@@ -51,6 +53,9 @@ export const createRequest = async (req, res) => {
       .json({ message: "Failed to create request", error: error.message });
   }
 };
+
+
+       
 
 // Get all requests
 export const getAllRequests = async (req, res) => {
@@ -87,11 +92,11 @@ export const getRequestById = async (req, res) => {
 // Update request status
 export const updateRequestStatus = async (req, res) => {
   try {
-    const { requestStatus  } = req.body;
+    const { requestStatus, coreId } = req.body;
     const updatedRequest = await RawMaterialRequest.findByIdAndUpdate(
       req.params.id,
-      { requestStatus },
-      { new: true }
+      { requestStatus, coreId }, 
+      { new: true } 
     );
 
     if (!updatedRequest)
@@ -104,6 +109,7 @@ export const updateRequestStatus = async (req, res) => {
       .json({ message: "Failed to update request", error: error.message });
   }
 };
+
 
 // Delete a request
 export const deleteRequest = async (req, res) => {

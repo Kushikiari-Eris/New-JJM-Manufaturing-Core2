@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useOrderStore } from '../stores/useOrderStore';
 import { useParams } from 'react-router-dom';
 import OrderTracker from '../components/OrderTracker';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 
 
@@ -17,10 +18,15 @@ const OrderTrackingPage = () => {
     }, [orderId]);
 
     
+    if (loading) {
+		return <div><LoadingSpinner/></div>;
+	}
 
     if (!order) {
         return <div>Order not found.</div>;
     }
+
+
     
 
   return (
