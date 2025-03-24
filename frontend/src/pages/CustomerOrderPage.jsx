@@ -46,9 +46,6 @@ const CustomerOrderPage = () => {
         setSelectedOrderId(null);
     };
 
-      if (loading) {
-            return <div><LoadingSpinner/></div>;
-        }
 
   return (
     <>

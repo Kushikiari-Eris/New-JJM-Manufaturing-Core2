@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axios from "../lib/axios";
+import { toast } from "react-hot-toast";
 
 const useAuditRequestLogistic1Store = create((set) => ({
   requests: [],
@@ -20,8 +21,10 @@ const useAuditRequestLogistic1Store = create((set) => ({
     try {
       const response = await axios.post("/auditRequestLogistic1", newRequest);
       set((state) => ({ requests: [...state.requests, response.data] }));
+      toast.success("Audit request added to task successfully!");
     } catch (error) {
       console.error("Failed to add audit request", error);
+      toast.error("Failed to add audit request")
     }
   },
 
@@ -47,6 +50,7 @@ const useAuditRequestLogistic1Store = create((set) => ({
       set((state) => ({
         requests: state.requests.filter((req) => req._id !== id),
       }));
+      toast.success("Audit request added to tasks successfully!");
     } catch (error) {
       console.error("Failed to delete audit request", error);
     }

@@ -14,12 +14,14 @@
     "@heroicons/react": "^2.2.0",
     "@material-tailwind/react": "^2.1.10",
     "@stripe/stripe-js": "^5.5.0",
+    "apexcharts": "^4.5.0",
     "axios": "^1.7.9",
     "framer-motion": "^11.16.1",
     "js-cookie": "^3.0.5",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.469.0",
     "react": "^18.3.1",
+    "react-apexcharts": "^1.7.0",
     "react-confetti": "^6.2.2",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.5.1",
@@ -27,6 +29,7 @@
     "react-router-dom": "^7.1.1",
     "recharts": "^2.15.1",
     "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

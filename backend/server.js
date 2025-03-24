@@ -39,6 +39,21 @@ import auditRequestLogistic1 from "./routes/auditRequestLogistic1.routes.js"
 import auditRequestLogistic2 from "./routes/auditRequestLogistic2.routes.js"
 import rawMaterial from './routes/rawMaterial.routes.js'
 import testing from './routes/testing.routes.js'
+import auditTask from './routes/auditTask.routes.js'
+import auditCompletedTasksCore1 from './routes/auditCompletedTasksCore1.routes.js'
+import auditCompletedTasksCore2 from './routes/auditCompletedTasksCore2.routes.js'
+import auditCompletedTasksAdmin from './routes/auditCompletedTaskAdmin.routes.js'
+import auditCompletedTasksFinance from './routes/auditCompletedTasksFinance.routes.js'
+import auditCompletedTasksHr1 from './routes/auditCompletedTasksHr1.routes.js'
+import auditCompletedTasksHr2 from './routes/auditCompletedTasksHr2.routes.js'
+import auditCompletedTasksHr3 from './routes/auditCompletedTasksHr3.routes.js'
+import auditCompletedTasksHr4 from './routes/auditCompletedTasksHr4.routes.js'
+import auditCompletedTasksLogistic1 from './routes/auditCompletedTasksLogistic1.routes.js'
+import auditCompletedTasksLogistic2 from './routes/auditCompletedTasksLogistic2.routes.js'
+import tasksAnalytics from './routes/tasksAnalytics.routes.js'
+import auditAnalytics from './routes/auditAnalytics.routes.js'
+import executionAnlytics from './routes/executionAnalytics.routes.js'
+import inventoryAnalytics from './routes/inventoryAnalytics.routes.js'
 
 
 dotenv.config()
@@ -56,8 +71,11 @@ const allowedOrigins = [
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
+    origin: [
+      "https://core2.jjm-manufacturing.com",
+      "http://localhost:5173", // Keep this for local development
+    ],
+    methods: ["GET", "POST",],
     credentials: true
   },
 });
@@ -148,6 +166,22 @@ app.use("/api/auditRequestHr3", auditRequestHr3)
 app.use("/api/auditRequestHr4", auditRequestHr4)
 app.use("/api/auditRequestLogistic1", auditRequestLogistic1)
 app.use("/api/auditRequestLogistic2", auditRequestLogistic2)
+app.use("/api/auditTask", auditTask)
+app.use("/api/auditCompletedTasksCore1", auditCompletedTasksCore1);
+app.use("/api/auditCompletedTasksCore2", auditCompletedTasksCore2);
+app.use("/api/auditCompletedTasksAdmin", auditCompletedTasksAdmin);
+app.use("/api/auditCompletedTasksFinance", auditCompletedTasksFinance);
+app.use("/api/auditCompletedTasksHr1", auditCompletedTasksHr1);
+app.use("/api/auditCompletedTasksHr2", auditCompletedTasksHr2);
+app.use("/api/auditCompletedTasksHr3", auditCompletedTasksHr3);
+app.use("/api/auditCompletedTasksHr4", auditCompletedTasksHr4);
+app.use("/api/auditCompletedTasksLogistic1", auditCompletedTasksLogistic1);
+app.use("/api/auditCompletedTasksLogistic2", auditCompletedTasksLogistic2);
+app.use("/api/tasksAnalytics", tasksAnalytics);
+app.use("/api/auditAnalytics", auditAnalytics);
+app.use("/api/executionAnlytics", executionAnlytics);
+app.use("/api/inventoryAnalytics", inventoryAnalytics);
+
 
 app.use("/api/testing", testing)
 

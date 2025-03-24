@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSocket } from "../context/SocketContext";
 import { useUserStore } from "../stores/useUserStore";
+import { useNavigate } from "react-router-dom";
 
 const Notification = () => {
   const socket = useSocket();
@@ -8,6 +9,7 @@ const Notification = () => {
   const [notifications, setNotifications] = useState([]);
   const { user } = useUserStore();
   const isAudit = user?.role === "audit";
+  const navigate = useNavigate();
 
   // Load notifications from localStorage on mount
   useEffect(() => {
@@ -38,6 +40,7 @@ const Notification = () => {
                 id: `overdue-${Date.now()}`,
                 message,
                 read: false,
+                route: "/maintenance",
               });
             }
           }
@@ -48,6 +51,7 @@ const Notification = () => {
                 id: `upcoming-${Date.now()}`,
                 message,
                 read: false,
+                route: "/maintenance",
               });
             }
           }
@@ -63,6 +67,7 @@ const Notification = () => {
               id: `${Date.now()}`,
               message,
               read: false,
+              route: `/audit/${data.department.toLowerCase().replace(/\s+/g, "-")}`,
             });
           }
         }
@@ -73,7 +78,7 @@ const Notification = () => {
           if (data.materialName && data.quantity !== undefined) {
             const message = `Low stock alert: "${data.materialName}" has only ${data.quantity} left!`;
             if (!prev.some((n) => n.message === message)) {
-              newNotifications.push({ id: `${Date.now()}`, message, read: false });
+              newNotifications.push({ id: `${Date.now()}`, message, read: false, route: "/inventory", });
             }
           }
         }
@@ -151,6 +156,12 @@ const Notification = () => {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  const handleNotificationClick = (notification) => {
+  if (notification.route) {
+    navigate(notification.route);
+  }
+};
+
   return (
     <div className="relative">
       <button
@@ -185,7 +196,7 @@ const Notification = () => {
             Notifications
           </div>
           {notifications.length > 0 ? (
-            <ul className="max-h-60 overflow-y-auto">
+            <ul className="max-h-60 overflow-y-auto" >
               {notifications.map((notification) => (
                 <li
                   key={notification.id}
@@ -193,7 +204,9 @@ const Notification = () => {
                     notification.read ? "bg-gray-100 text-gray-500" : "bg-white"
                   }`}
                 >
-                  {notification.message}
+                  <button className="text-start" onClick={() => handleNotificationClick(notification)}>
+                    {notification.message}
+                  </button>
                   {!notification.read && (
                     <button
                       className="text-blue-500 text-xs ml-2"

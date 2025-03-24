@@ -14,7 +14,7 @@ const Sidebar = () => {
   return (
     
     <aside
-      className={` h-screen  text-gray-900 p-4 transition-all duration-300 border-x ${
+      className={`   h-screen text-gray-900 p-4 transition-all duration-300 border-x ${
         isCollapsed ? "w-16" : "w-64"
       } ${isAuditor ? "bg-gradient-to-b from-green-400 via-green-500 to-green-700 " : "bg-white"}`}
     >
@@ -116,7 +116,7 @@ const Sidebar = () => {
                   </ul>
                 </li>
                 <li>
-                  <a className="flex items-center gap-x-3 py-2 px-1   text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditDashboard">
+                  <a className="flex items-center gap-x-3 py-2 px-1   text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditTask">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
                       </svg>
@@ -130,7 +130,7 @@ const Sidebar = () => {
                     </a>
                 </li>
                 <li>
-                  <a className="flex items-center gap-x-3 py-2 px-1   text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditDashboard">
+                  <a className="flex items-center gap-x-3 py-2 px-1   text-gray-600 rounded-lg hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditReports">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12" />
                       </svg>
@@ -158,10 +158,27 @@ const Sidebar = () => {
                     AUDIT MANAGEMENT
                 </span>
                 <li>
-                  <a className="flex items-center gap-x-3 py-2 px-1   text-white rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditDashboard">
+                  <a className="flex items-center gap-x-3 py-2 px-1   text-white rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditorDashboard">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
                       </svg>
+
+
+                      <span
+                      className={`transition-all font-medium duration-200 ${
+                            isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
+                          }`}
+                        >
+                        Dashboard
+                      </span>
+                    </a>
+                </li>
+                <li>
+                  <a className="flex items-center gap-x-3 py-2 px-1   text-white rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditPendingTask">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+
 
                       <span
                       className={`transition-all font-medium duration-200 ${
@@ -173,7 +190,22 @@ const Sidebar = () => {
                     </a>
                 </li>
                 <li>
-                  <a className="flex items-center gap-x-3 py-2 px-1   text-white rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditDashboard">
+                  <a className="flex items-center gap-x-3 py-2 px-1   text-white rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditInProgressTask">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+
+                      <span
+                      className={`transition-all font-medium duration-200 ${
+                            isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
+                          }`}
+                        >
+                        In Progress Task
+                      </span>
+                    </a>
+                </li>
+                <li>
+                  <a className="flex items-center gap-x-3 py-2 px-1   text-white rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditCompletedTask">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z" />
                       </svg>
@@ -184,20 +216,6 @@ const Sidebar = () => {
                           }`}
                         >
                         Completed Task
-                      </span>
-                    </a>
-                </li>
-                <li>
-                  <a className="flex items-center gap-x-3 py-2 px-1   text-white rounded-lg hover:text-gray-900 hover:bg-gray-100 dark:bg-neutral-700 dark:text-white" href="/auditDashboard">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12" />
-                      </svg>
-                      <span
-                      className={`transition-all font-medium duration-200 ${
-                            isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
-                          }`}
-                        >
-                        Audit Reports
                       </span>
                     </a>
                 </li>

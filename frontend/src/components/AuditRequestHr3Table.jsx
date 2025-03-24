@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import useAuditRequestHr3Store from "../stores/useAuditRequestHr3Store";
+import useAuditTaskStore from "../stores/auditTaskStore";
 
 const AuditRequestHr3Table = () => {
     const { requests, loading, fetchRequests, deleteRequest } = useAuditRequestHr3Store();
+    const { addTask } = useAuditTaskStore()
+
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(1);
@@ -22,6 +25,22 @@ const AuditRequestHr3Table = () => {
         if (pageNumber >= 1 && pageNumber <= totalPages) {
             setCurrentPage(pageNumber);
         }
+    };
+
+    const handleAddTask = async (req) => {
+    const newTask = {
+        department: req.department,
+        description: req.description,
+        task: req.task,
+        status: "Pending",
+    };
+
+    try {
+        await addTask(newTask, () => {}); // Add Task
+        await deleteRequest(req._id); // Delete Request
+    } catch (error) {
+        console.error("Error processing request:", error);
+    }
     };
 
     return (
@@ -65,13 +84,13 @@ const AuditRequestHr3Table = () => {
                                     <td className="px-6 py-4">{req.description}</td>
                                     <td className="px-6 py-4">
                                         <ul className="list-disc pl-5">
-                                            {req.task.split("\n").map((taskItem, index) => (
+                                            {req.task.map((taskItem, index) => (
                                                 <li key={index}>{taskItem}</li>
                                             ))}
                                         </ul>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <button onClick={() => deleteRequest(req._id)} className="bg-blue-500 text-white px-3 py-2 rounded">
+                                        <button onClick={() => handleAddTask(req)} className="bg-blue-500 text-white px-3 py-2 rounded">
                                             Add Tasks
                                         </button>
                                     </td>

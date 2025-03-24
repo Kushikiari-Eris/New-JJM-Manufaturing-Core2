@@ -13,6 +13,6 @@ const testingSchema = new mongoose.Schema({
 });
 
 
-const Testing = mongoose.model("Task", testingSchema);
+const Testing = mongoose.model("Testing", testingSchema);
 
 export default Testing

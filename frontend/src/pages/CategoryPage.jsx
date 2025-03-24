@@ -6,7 +6,7 @@ import ProductCard from "../components/ProductCard";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const CategoryPage = () => {
-	const { fetchProductsByCategory, products } = useProductStore();
+	const { fetchProductsByCategory, products, loading } = useProductStore();
 
 	const { category } = useParams();
 

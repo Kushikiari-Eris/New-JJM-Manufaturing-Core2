@@ -35,6 +35,11 @@ import AuditRequestLogisticPage from "./pages/AuditRequestLogisticPage"
 import AuditRequestCorePage from "./pages/AuditRequestCorePage"
 import AuditorDashbboard from "./pages/AuditorDashbboard"
 import Testing from "./pages/Testing"
+import AuditTaskPage from "./pages/AuditTaskPage"
+import AuditorPendingPage from "./pages/AuditorPendingPage"
+import AuditInProgressTaskPage from "./pages/AuditInProgressTaskPage"
+import AuditCompletedTasksPage from "./pages/AuditCompletedTasksPage"
+import AuditReportsTasksPage from "./pages/AuditReportsTasksPage"
 
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
@@ -84,9 +89,15 @@ function App() {
             <Route path='/auditRequestFinance' element={user?.role === "audit" ? <AuditRequestFinancePage /> : <Navigate to='/login' />} />
             <Route path='/auditRequestLogistic' element={user?.role === "audit" ? <AuditRequestLogisticPage /> : <Navigate to='/login' />} />
             <Route path='/auditRequestCore' element={user?.role === "audit" ? <AuditRequestCorePage /> : <Navigate to='/login' />} />
+            <Route path='/auditTask' element={user?.role === "audit" ? <AuditTaskPage /> : <Navigate to='/login' />} /> 
+            <Route path='/auditReports' element={user?.role === "audit" ? <AuditReportsTasksPage /> : <Navigate to='/login' />} /> 
+            
 
             <Route path='/auditorDashboard' element={user?.role === "auditor" ? <AuditorDashbboard /> : <Navigate to='/login' />} />
-
+            <Route path='/auditPendingTask' element={user?.role === "auditor" ? <AuditorPendingPage /> : <Navigate to='/login' />} /> 
+            <Route path='/auditInProgressTask' element={user?.role === "auditor" ? <AuditInProgressTaskPage /> : <Navigate to='/login' />} /> 
+            <Route path='/auditCompletedTask' element={user?.role === "auditor" ? <AuditCompletedTasksPage /> : <Navigate to='/login' />} /> 
+            
 
             <Route path='/category/:category' element={<CategoryPage />} />
             <Route path='/cart' element={user ? <CartPage /> : <Navigate to='/login' />} />

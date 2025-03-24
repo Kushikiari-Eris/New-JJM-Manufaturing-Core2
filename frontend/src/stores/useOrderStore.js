@@ -56,10 +56,11 @@ export const useOrderStore = create((set) => ({
     try {
       if (!orderId || typeof orderId !== "string") {
         console.error("Invalid orderId:", orderId);
+        set({ loading: false });
         return;
       }
       const response = await axios.get(`/orderTracker/${orderId}`);
-      set({ orderTracker: [response.data] });
+      set({ orderTracker: [response.data], loading: false });
     } catch (error) {
       console.error("Error fetching order status:", error);
     }

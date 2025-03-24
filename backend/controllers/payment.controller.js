@@ -435,7 +435,7 @@ export const checkoutSuccess = async (req, res) => {
         quantity: product.quantity,
         price: product.price,
       })),
-      paymentMethod: "Gcash",
+      paymentMethod: "Stripe",
       subTotal: subtotal,
       totalAmount: session.amount_total / 100,
       shippingFee: session.shipping_cost
@@ -599,7 +599,7 @@ Output format:
             quantity: product.quantity,
             price: product.price,
           })),
-          paymentMethod: newOrder.paymentMethod,
+          paymentMethod: "Gcash",
           contactInformation: newOrder.shippingAddress.phone,
           orderDate: newOrder.createdAt.toISOString().slice(0, 10),
           shippingMethod,

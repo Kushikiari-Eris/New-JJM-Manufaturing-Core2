@@ -21,7 +21,10 @@ export const useProductExecutionStore = create((set) => ({
   },
 
   handleStartProduction: async (id) => {
-    console.log("🛠 Sending request with ID:", id);
+    console.log(
+      "🛠 Checking raw materials before starting production for Execution ID:",
+      id
+    );
 
     if (!id || id.length !== 24) {
       console.error("❌ Invalid ID format:", id);
@@ -29,6 +32,58 @@ export const useProductExecutionStore = create((set) => ({
     }
 
     try {
+      // ✅ Step 1: Fetch execution details to get required raw materials
+      const executionRes = await axios.get(`/execution/${id}`);
+      const { productId, quantity, materials } = executionRes.data || {};
+
+      if (!productId || !quantity) {
+        console.error("❌ Missing productId or quantity in execution data");
+        return;
+      }
+
+      if (!materials || materials.length === 0) {
+        console.error("❌ No raw materials specified for this execution");
+        toast.error("No raw materials defined for production", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        return;
+      }
+
+      // ✅ Step 2: Check raw material stock BEFORE starting production
+      for (const material of materials) {
+        const { materialId, quantity } = material;
+
+        if (!materialId || !quantity) {
+          console.error("⚠️ Invalid raw material data:", material);
+          continue;
+        }
+
+        // Fetch the raw material stock
+        const materialRes = await axios.get('/rawMaterial');
+        const availableStock = materialRes.data?.stock || 0;
+
+        console.log(
+          `🔍 Checking Raw Material ID: ${materialId}, Required: ${quantity}, Available: ${availableStock}`
+        );
+
+        if (availableStock < quantity) {
+          console.error(
+            `❌ Insufficient stock for Raw Material ID: ${materialId}`
+          );
+          toast.error('Insufficient stock need to restock to proceed to production', {
+            position: "top-right",
+            autoClose: 3000,
+          });
+          return; // ❌ Stop production if any raw material is insufficient
+        }
+      }
+
+      console.log(
+        "✅ All raw materials are available. Proceeding with production..."
+      );
+
+      // ✅ Step 3: Start production only if all materials are available
       const duration = 10; // Example duration (10 seconds)
       const response = await axios.put("/execution/start", { id, duration });
 
@@ -68,18 +123,6 @@ export const useProductExecutionStore = create((set) => ({
             console.log(`✅ Production completed for Execution ID: ${id}`);
 
             try {
-              // ✅ Fetch execution details to get productId, quantity, and required raw materials
-              const executionRes = await axios.get(`/execution/${id}`);
-              const { productId, quantity, materials } =
-                executionRes.data || {};
-
-              if (!productId || !quantity) {
-                console.error(
-                  "❌ Missing productId or quantity in execution data"
-                );
-                return;
-              }
-
               console.log(
                 `📦 Updating stock for Product ID: ${productId} (+${quantity})`
               );
@@ -92,50 +135,25 @@ export const useProductExecutionStore = create((set) => ({
               );
 
               // ✅ Process raw materials decrement
-              if (!materials || materials.length === 0) {
-                console.error("❌ No raw materials found for this execution");
-                return;
-              }
-
               for (const material of materials) {
                 const { materialId, quantity } = material;
-
-                if (!materialId || !quantity) {
-                  console.error("⚠️ Invalid raw material data:", material);
-                  continue;
-                }
 
                 console.log(
                   `🔻 Deducting ${quantity} from Raw Material ID: ${materialId}`
                 );
 
-                try {
-                  // ✅ Decrement raw material stock
-                  await axios.put(`/rawMaterial/decrement`, {
-                    id: materialId,
-                    quantity: quantity,
-                  });
+                // ✅ Decrement raw material stock
+                await axios.put(`/rawMaterial/decrement`, {
+                  id: materialId,
+                  quantity: quantity,
+                });
 
-                  console.log(
-                    `✅ Raw Material ${materialId} stock updated successfully`
-                  );
-                } catch (error) {
-                  console.error(
-                    `❌ Failed to decrement stock for Raw Material ${materialId}:`,
-                    error
-                  );
-
-                  toast.error(
-                    `Insufficient raw materials for ID: ${materialId}`,
-                    {
-                      position: "top-right",
-                      autoClose: 3000,
-                    }
-                  );
-                }
+                console.log(
+                  `✅ Raw Material ${materialId} stock updated successfully`
+                );
               }
             } catch (error) {
-              console.error("❌ Error fetching execution details:", error);
+              console.error("❌ Error updating stocks:", error);
             }
           }
         }, 1000);
@@ -144,6 +162,10 @@ export const useProductExecutionStore = create((set) => ({
       }
     } catch (error) {
       console.error("❌ Error starting production:", error);
+      toast.error("Error starting production. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   },
 

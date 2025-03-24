@@ -7,7 +7,7 @@ const auditAdminRequestSchema = new mongoose.Schema(
       required: true,
     },
     description: { type: String, required: true },
-    task: { type: String, required: true },
+    task: { type: [String], required: true },
   },
   { timestamps: true }
 );

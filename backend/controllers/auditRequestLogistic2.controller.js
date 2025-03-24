@@ -23,7 +23,9 @@ export const createAuditRequest = async (req, res) => {
     if (req.io) {
       sendAuditNotifications(req.io);
     }
-    res.status(201).json(newRequest);
+    res
+      .status(201)
+      .json({ message: "Request recieved successfully!" });
   } catch (error) {
     res.status(500).json({ error: "Failed to create audit request" });
   }

@@ -22,9 +22,6 @@ const OrderList = ({ openModal, openSecondModal }) => {
     }
   };
 
-    if (loading) {
-      return <div><LoadingSpinner/></div>;
-    }
 
   return (
     <>
@@ -104,6 +101,9 @@ const OrderList = ({ openModal, openSecondModal }) => {
                 Date
               </th>
               <th scope="col" className="px-6 py-3">
+                Payment
+              </th>
+              <th scope="col" className="px-6 py-3">
                 Status
               </th>
               <th scope="col" className="px-6 py-3">
@@ -131,6 +131,9 @@ const OrderList = ({ openModal, openSecondModal }) => {
                 <td className="px-6 py-4">{order.user?.email || "N/A"}</td>
                 <td className="px-6 py-4">
                   {new Date(order.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4">
+                  {order.paymentMethod}
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center">
