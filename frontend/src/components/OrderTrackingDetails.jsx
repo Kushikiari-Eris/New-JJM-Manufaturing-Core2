@@ -4,7 +4,7 @@ import { useOrderStore } from "../stores/useOrderStore";
 const statusSteps = ["Pending", "Placed Order", "Processing", "Order Shipped", "Order Delivered"];
 
 const OrderTrackingDetails = ({ orderId, onClose }) => {
-  const { orderTracker = [], fetchOrderStatus, updateOrderStatus } = useOrderStore();
+  const { orderTracker = [], fetchOrderStatus, updateOrderStatus, orders } = useOrderStore();
 
   useEffect(() => {
     if (orderId) {
@@ -80,19 +80,41 @@ const OrderTrackingDetails = ({ orderId, onClose }) => {
               </ol>
 
               {/* Status Update Buttons */}
-              <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-4">
-                {statusSteps
-                  .slice(getStepIndex(order.orderStatus) + 1, getStepIndex(order.orderStatus) + 2)
-                  .map((nextStatus) => (
-                    <button
-                      key={nextStatus}
-                      onClick={() => handleStatusChange(nextStatus)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition"
-                    >
-                      Mark as {nextStatus}
-                    </button>
-                  ))}
-              </div>
+              {/* Status Update Buttons */}
+{/* Status Update Buttons */}
+{/* Status Update Buttons */}
+<div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-4">
+  {orders.find((o) => o._id === orderId)?.status === "Canceled" ? (
+    <button
+      disabled
+      className="bg-gray-400 text-white px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed"
+    >
+      Canceled
+    </button>
+  ) : orders.find((o) => o._id === orderId)?.status === "Confirmed" ? (
+    statusSteps
+      .slice(getStepIndex(order.orderStatus) + 1, getStepIndex(order.orderStatus) + 2)
+      .map((nextStatus) => (
+        <button
+          key={nextStatus}
+          onClick={() => handleStatusChange(nextStatus)}
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition"
+        >
+          Mark as {nextStatus}
+        </button>
+      ))
+  ) : (
+    <button
+      disabled
+      className="bg-gray-400 text-white px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed"
+    >
+      Awaiting Confirmation
+    </button>
+  )}
+</div>
+
+
+
             </>
           ) : (
             <p className="text-gray-500 text-center">No tracking data available.</p>

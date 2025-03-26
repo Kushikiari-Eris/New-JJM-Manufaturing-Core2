@@ -2,9 +2,9 @@ import mongoose from "mongoose";
 
 const rawMaterialSchema = new mongoose.Schema(
   {
-    materialName: { type: String, required: true },
-    quantity: { type: Number, required: true },
-    unit: { type: String, required: true },
+    materialName: { type: String },
+    quantity: { type: Number },
+    unit: { type: String},
   },
   { timestamps: true }
 );

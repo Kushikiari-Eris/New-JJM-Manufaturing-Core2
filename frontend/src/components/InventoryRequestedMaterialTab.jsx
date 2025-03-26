@@ -5,7 +5,7 @@ import LoadingSpinner from "./LoadingSpinner";
 
 const InventoryRequestedMaterialTab = () => {
   const { audits, loading, fetchAudits, updateAuditStatus } = useAuditStore();
-  const { addRawMaterial } = useRawMaterialStore();
+  const { addRawMaterial, fetchRawMaterials, updateRawMaterial } = useRawMaterialStore();
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5); // Adjust as needed
@@ -21,7 +21,8 @@ const InventoryRequestedMaterialTab = () => {
 
   useEffect(() => {
     fetchAudits();
-  }, [fetchAudits]);
+    fetchRawMaterials()
+  }, [fetchAudits, fetchRawMaterials]);
 
     // Update paginatedRequests whenever requests or currentPage changes
     useEffect(() => {
@@ -34,22 +35,52 @@ const InventoryRequestedMaterialTab = () => {
 
 
 const handleApprove = async (audit) => {
-    if (!audit.rawMaterial || audit.rawMaterial.length === 0) {
-        alert("No materials to approve.");
-        return;
+  if (!audit.rawMaterial || audit.rawMaterial.length === 0) {
+    alert("No materials to approve.");
+    return;
+  }
+
+  // ✅ Fetch the latest raw materials
+  let existingMaterials = await fetchRawMaterials();
+
+  for (const mat of audit.rawMaterial) {
+    // ✅ Ensure case-insensitive comparison to prevent duplicates
+    const existingMaterial = existingMaterials.find(
+      (m) => m.materialName.toLowerCase() === mat.itemName.toLowerCase()
+    );
+
+    if (existingMaterial) {
+      // ✅ Update quantity if material exists
+      console.log(`Updating material: ${existingMaterial.materialName} by adding quantity: ${mat.quantity}`);
+      const updatedMaterial = await updateRawMaterial(existingMaterial._id, mat.quantity);
+
+      if (updatedMaterial) {
+        // ✅ Update local materials list to prevent duplicate API calls
+        existingMaterial.quantity = updatedMaterial.quantity;
+      }
+    } else {
+      // ✅ Add new material if it doesn't exist
+      console.log(`Adding new material: ${mat.itemName}`);
+      const newMaterial = await addRawMaterial({
+        materialName: mat.itemName,
+        quantity: mat.quantity,
+        unit: mat.unit,
+      });
+
+      if (newMaterial) {
+        existingMaterials.push(newMaterial); // ✅ Prevent adding duplicate material in the loop
+      }
     }
+  }
 
-    audit.rawMaterial.forEach((mat) => {
-        addRawMaterial({
-            materialName: mat.itemName,
-            quantity: mat.quantity,
-            unit: mat.unit,
-        });
-    });
+  // ✅ Fetch updated materials again to ensure frontend reflects the changes
+  await fetchRawMaterials();
 
-    await updateAuditStatus(audit._id, "Approved");
-    console.log("Audit updated:", audit._id);
+  // ✅ Update audit status
+  await updateAuditStatus(audit._id, "Approved");
+  console.log("Audit updated:", audit._id);
 };
+
 
       if (loading) {
             return <div><LoadingSpinner/></div>;

@@ -61,9 +61,12 @@ export const createTransferAndSend = async (req, res) => {
 
     // ✅ 3. Send transfer request to Logistic 2
     try {
+      // Ensure only required fields are sent
+      if (!transferData.coreId) delete transferData.coreId;
+
       const response = await axios.post(
         `${process.env.API_GATEWAY_URL}/logistic2/transfer-products`,
-        transferData, // Send modified data with string IDs
+        transferData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -73,7 +76,6 @@ export const createTransferAndSend = async (req, res) => {
       );
 
       console.log("✅ Transfer sent to Logistic 2:", response.data);
-
       return res.status(201).json({
         message: "Transfer request created & sent to Logistic 2",
         newTransfer,
@@ -81,7 +83,7 @@ export const createTransferAndSend = async (req, res) => {
       });
     } catch (apiError) {
       console.error(
-        "❌ Error sending transfer to Logistic 2:",
+        "❌ Logistic 2 API Error:",
         apiError.response?.data || apiError.message
       );
       return res.status(apiError.response?.status || 500).json({

@@ -5,14 +5,16 @@ import { Users, Package, ShoppingCart, DollarSign, PackageCheck, TrendingUp, Ale
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,  } from "recharts";
 import Chart from "react-apexcharts";
 import LoadingSpinner from "./LoadingSpinner"
-import { FaTasks, FaCheckCircle, FaClock } from "react-icons/fa";
+import { FaTasks, FaCheckCircle, FaClock, FaTools, FaChartBar } from "react-icons/fa";
 import useExecutionAnalyticsStore from "../stores/useExecutionAnalyticsStore";
 import useInventoryAnalyticsStore from "../stores/useInventoryAnalyticsStore";
+import  {useMaintenanceAnalyticsStore}  from "../stores/useMaintenanceAnalyticsStore";
 
 const AnalyticsTab = () => {
 
 	const { analytics, fetchAnalytics, loading } = useExecutionAnalyticsStore();
 	const { inventoryAnalytics, fetchInventoryAnalytics, loadings } = useInventoryAnalyticsStore();
+	const { maintenanceAnalytics, loadingss, fetchMaintenanceAnalytics } = useMaintenanceAnalyticsStore();
 
 	const {
     totalRawMaterials = 0,
@@ -48,6 +50,7 @@ const AnalyticsTab = () => {
 		fetchAnalyticsData();
 		fetchAnalytics()
 		fetchInventoryAnalytics()
+		fetchMaintenanceAnalytics()
 	}, []);
 
 	
@@ -64,6 +67,19 @@ const AnalyticsTab = () => {
 		{ title: "Completed", value: statusCounts.find(s => s._id === "Completed")?.count || 0, icon: FaCheckCircle, color: "text-green-400" },
 	];
 
+
+	const statusChartOptions = {
+		labels: maintenanceAnalytics?.statusCounts.map(({ _id }) => _id) || [],
+		chart: { type: "donut" },
+		colors: ["#34D399", "#60A5FA", "#FBBF24", "#EF4444"],
+	};
+
+	const typeChartOptions = {
+		labels: maintenanceAnalytics?.typeCounts.map(({ _id }) => _id) || [],
+		chart: { type: "pie" },
+		colors: ["#6D28D9", "#22D3EE", "#F59E0B", "#10B981", "#E11D48"],
+	};
+
 	if (isLoading) {
 		return <div><LoadingSpinner/></div>;
 	}
@@ -71,7 +87,7 @@ const AnalyticsTab = () => {
 	return (
 		<>
 		<div className='max-w-8xl mx-auto px-4 sm:px-6 mt-10 lg:px-8'>
-			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-4'>
+			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-4'>
 				<AnalyticsCard
 					title='Total Users'
 					value={analyticsData.users.toLocaleString()}
@@ -112,6 +128,21 @@ const AnalyticsTab = () => {
 					value={analyticsData.products.toLocaleString()}
 					icon={TrendingUp}
 					color="from-blue-500 to-indigo-700"
+				/>
+
+				<AnalyticsCard
+				title="Total Maintenance"
+				value={maintenanceAnalytics.totalMaintenance}
+				icon={FaChartBar}
+				color="from-emerald-500 to-lime-700"
+				/>
+				<AnalyticsCard
+				title="Completed Maintenance Tasks"
+				value={
+					maintenanceAnalytics.statusCounts.find((s) => s._id === "Completed")?.count || 0
+				}
+				icon={FaCheckCircle}
+				color="from-emerald-500 to-lime-700"
 				/>
 
 			</div>
@@ -239,6 +270,44 @@ const AnalyticsTab = () => {
 				}}
 				series={statusCounts.map(s => s.count)}
 				type="donut"
+				height={300}
+			/>
+			</motion.div>
+
+			<motion.div
+			className="bg-white rounded-lg p-4 shadow-md"
+			initial={{ opacity: 0, y: 10 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.4, delay: 0.2 }}
+			>
+			<h3 className="text-lg flex justify-center font-semibold mb-3">Status Breakdown</h3>
+			<Chart
+				options={statusChartOptions}
+				series={[{
+				name: "Count",
+				data: maintenanceAnalytics.statusCounts.map(({ count }) => count),
+				}]}
+				type="line"
+				height={300}
+			/>
+			</motion.div>
+
+			<motion.div
+			className="bg-white rounded-lg p-4 shadow-md"
+			initial={{ opacity: 0, y: 10 }}
+			animate={{ opacity: 1, y: 0 }}
+			transition={{ duration: 0.4, delay: 0.2 }}
+			>
+			<h3 className="text-lg flex justify-center font-semibold mb-3">Type Breakdown</h3>
+			<Chart
+				options={typeChartOptions}
+				series={[
+				{
+					name: "Count",
+					data: maintenanceAnalytics.typeCounts.map(({ count }) => count),
+				},
+				]}
+				type="area"
 				height={300}
 			/>
 			</motion.div>

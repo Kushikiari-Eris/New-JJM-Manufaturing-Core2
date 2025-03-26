@@ -5,27 +5,44 @@ import mongoose from "mongoose";
 
 // Create new raw material
 export const createRawMaterial = async (req, res) => {
- try {
-   console.log("Received data:", req.body);
+  try {
+    console.log("Received data:", req.body);
 
-   const { materialName, quantity, unit } = req.body;
+    const { materialName, quantity, unit } = req.body;
 
-   if (!materialName || !quantity || !unit) {
-     return res.status(400).json({ error: "All fields are required." });
-   }
-   const newMaterial = new RawMaterial({
-     materialName,
-     quantity,
-     unit,
-   });
+    if (!materialName || !quantity || !unit) {
+      return res.status(400).json({ error: "All fields are required." });
+    }
 
-   await newMaterial.save();
-   res.status(201).json(newMaterial);
- } catch (error) {
-   console.error("Server error:", error);
-   res.status(500).json({ error: error.message });
- }
+    // ✅ Check if the material already exists
+    let existingMaterial = await RawMaterial.findOne({ materialName });
+
+    if (existingMaterial) {
+      // ✅ If material exists, update quantity
+      existingMaterial.quantity += quantity;
+      await existingMaterial.save();
+      console.log(
+        `✅ Updated existing material: ${materialName} (New Quantity: ${existingMaterial.quantity})`
+      );
+      return res.status(200).json(existingMaterial);
+    }
+
+    // ✅ If material does not exist, create a new one
+    const newMaterial = new RawMaterial({
+      materialName,
+      quantity,
+      unit,
+    });
+
+    await newMaterial.save();
+    console.log(`✅ New material added: ${materialName}`);
+    return res.status(201).json(newMaterial);
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
+
 
 export const decrementRawMaterialStock = async (req, res) => {
   try {
@@ -135,6 +152,38 @@ export const getRawMaterials = async (req, res) => {
     res.status(500).json({ error: "Error fetching raw materials" });
   }
 };
+
+// Update material quantity if it exists
+// ✅ Increment material quantity
+export const incrementRawMaterialStock = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    if (!id || !quantity) {
+      return res.status(400).json({ error: "Missing id or quantity" });
+    }
+
+    // ✅ Find material and update quantity
+    const updatedMaterial = await RawMaterial.findByIdAndUpdate(
+      id,
+      { $inc: { quantity } },
+      { new: true } // Return updated document
+    );
+
+    if (!updatedMaterial) {
+      return res.status(404).json({ error: "Material not found" });
+    }
+
+    console.log(`✅ Material ${id} stock updated successfully.`);
+    res.json(updatedMaterial);
+  } catch (error) {
+    console.error("❌ Error updating stock:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
 
 
 

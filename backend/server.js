@@ -54,6 +54,7 @@ import tasksAnalytics from './routes/tasksAnalytics.routes.js'
 import auditAnalytics from './routes/auditAnalytics.routes.js'
 import executionAnlytics from './routes/executionAnalytics.routes.js'
 import inventoryAnalytics from './routes/inventoryAnalytics.routes.js'
+import maintenanceAnalytics from './routes/maintenanceAnalytics.routes.js'
 
 
 dotenv.config()
@@ -181,6 +182,7 @@ app.use("/api/tasksAnalytics", tasksAnalytics);
 app.use("/api/auditAnalytics", auditAnalytics);
 app.use("/api/executionAnlytics", executionAnlytics);
 app.use("/api/inventoryAnalytics", inventoryAnalytics);
+app.use("/api/maintenanceAnalytics", maintenanceAnalytics);
 
 
 app.use("/api/testing", testing)

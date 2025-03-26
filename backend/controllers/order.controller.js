@@ -54,7 +54,7 @@ export const updateOrderStatus = async (req, res) => {
     const validStatuses = [
       "Pending",
       "Confirmed",
-      "Cancelled",
+      "Canceled",
       "Refunded"
     ];
     if (!validStatuses.includes(status)) {

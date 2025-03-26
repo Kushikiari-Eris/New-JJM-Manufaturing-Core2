@@ -173,6 +173,12 @@ const Navbar = () => {
               </Link>
             )}
 
+            {!isAdmin && !isAudit && !isAuditor &&
+            <div className="py-2 text-gray-600 hover:text-emerald-400 transition">
+              <a  href="/purchasePage" >My Purchase</a>
+            </div>
+            }
+
             {user ? (
               <button
                 className="py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-md flex justify-center items-center"

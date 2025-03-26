@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axios from "../lib/axios";
+import { toast } from "react-hot-toast";
 
 export const useOrderStore = create((set) => ({
   orders: [],
@@ -38,6 +39,7 @@ export const useOrderStore = create((set) => ({
     } catch (error) {
       console.error("Error fetching orders", error);
       set({ error: "Failed to fetch orders", loading: false, orders: [] });
+      toast.error("Failed to fetch orders.");
     }
   },
 
@@ -48,6 +50,7 @@ export const useOrderStore = create((set) => ({
       set({ order: res.data, loading: false });
     } catch (error) {
       set({ error: "Failed to fetch order", loading: false });
+      toast.error("Failed to fetch order details.");
     }
   },
 
@@ -63,6 +66,7 @@ export const useOrderStore = create((set) => ({
       set({ orderTracker: [response.data], loading: false });
     } catch (error) {
       console.error("Error fetching order status:", error);
+      toast.error("Failed to fetch order status.");
     }
   },
 
@@ -79,8 +83,11 @@ export const useOrderStore = create((set) => ({
           order.orderId?._id === orderId ? { ...order, orderStatus } : order
         ),
       }));
+
+      toast.success("Order status updated successfully!");
     } catch (error) {
       console.error("Error updating order status:", error);
+      toast.error("Failed to update order status.");
     }
   },
 
@@ -88,13 +95,14 @@ export const useOrderStore = create((set) => ({
     set({ loading: true, error: null });
     if (!orderId || !status) {
       console.error("Missing orderId or status", { orderId, status });
+      toast.error("Invalid order update request.");
       return;
     }
 
     try {
       const response = await axios.put(`/orders/${orderId}/status`, { status });
 
-      //  Update orders in state immediately
+      // Update orders in state immediately
       set((state) => ({
         orders: state.orders.map((order) =>
           order._id === orderId
@@ -102,8 +110,11 @@ export const useOrderStore = create((set) => ({
             : order
         ),
       }));
+
+      toast.success("Order status updated!");
     } catch (error) {
       console.error("Error updating order status:", error);
+      toast.error("Failed to update order status.");
     }
   },
 }));

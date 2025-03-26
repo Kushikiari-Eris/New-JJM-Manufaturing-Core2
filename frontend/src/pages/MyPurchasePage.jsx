@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const MyPurchasePage = () => {
-    const { orders, loading, error, fetchAllOrder } = useOrderStore();
+    const { orders, loading, error, updateStatus, fetchAllOrder } = useOrderStore();
     const navigate = useNavigate();
 
 
@@ -49,20 +49,18 @@ const MyPurchasePage = () => {
                                             <h2 className='font-medium text-sm md:text-md'>Date Placed</h2>
                                             <span className='text-gray-500 text-sm'>{new Date(order.createdAt).toLocaleString()}</span>
                                         </div>
-                                        <div>
-                                            <h2 className='font-medium text-sm md:text-md'>Total Amount</h2>
-                                            <span className='font-medium text-sm md:text-md'>
-                                                ₱{order.shippingFee} + ₱{order.subTotal} = ₱{order.totalAmount  - order.discount}
-                                            </span>
-                                        </div>
                                     </div>
                                     <div className='flex flex-col sm:flex-row gap-2 sm:gap-4 items-center mt-4 sm:mt-0'>
-                                        <button
-                                            type='button'
-                                            className='border-gray-300 border py-2 px-3 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm'
-                                        >
-                                            Cancel Order
-                                        </button>
+                                        {order.status !== "Canceled" && order.status !== "Confirmed" && (
+                                            <button
+                                                type='button'
+                                                className='border-gray-300 border py-2 px-3 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium text-sm'
+                                                onClick={() => updateStatus(order._id, "Canceled")}
+                                            >
+                                                Cancel Order
+                                            </button>
+                                        )}
+
                                         <button
                                             type='button'
                                             className='border-gray-300 border py-2 px-3 rounded-lg hover:bg-gray-50 font-medium text-sm flex'
@@ -98,8 +96,16 @@ const MyPurchasePage = () => {
                                     </div>
                                 </div>
                                 ))}
-                                <div className='py-4 px-8 text-sm sm:text-md'>
-                                    <h2>{order.status}</h2>
+                                <div className="py-4 px-8 text-sm sm:text-md flex items-center">
+                                    <div
+                                    className={`h-2.5 w-2.5 rounded-full me-2 
+                                        ${order.status === "Pending" ? "bg-yellow-500" :
+                                        order.status === "Confirmed" ? "bg-green-500" :
+                                        order.status === "Canceled" ? "bg-red-500" :
+                                        order.status === "Refunded" ? "bg-blue-500" : "bg-gray-400"
+                                        }`}
+                                    ></div> 
+                                    {order.status}
                                 </div>
                             </div>
                         ))}

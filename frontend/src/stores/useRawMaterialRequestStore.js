@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axios from "../lib/axios";
+import { toast } from "react-hot-toast";
 
 export const useRawMaterialRequestStore = create((set) => ({
   requests: [],
@@ -19,6 +20,7 @@ export const useRawMaterialRequestStore = create((set) => ({
       set({ requests: sortedRequests, loading: false });
     } catch (error) {
       set({ error: error.message, loading: false });
+      toast.error("Failed to fetch raw material requests.");
     }
   },
 
@@ -26,8 +28,10 @@ export const useRawMaterialRequestStore = create((set) => ({
     try {
       const response = await axios.post("/rawMaterialRequest", newRequest);
       set((state) => ({ requests: [...state.requests, response.data] }));
+      toast.success("Raw material request added successfully!");
     } catch (error) {
       console.error("Error adding request:", error);
+      toast.error("Failed to add raw material request.");
     }
   },
 
@@ -42,8 +46,10 @@ export const useRawMaterialRequestStore = create((set) => ({
           req._id === id ? response.data : req
         ),
       }));
+      toast.success("Request status updated successfully!");
     } catch (error) {
       console.error("Error updating request:", error);
+      toast.error("Failed to update request status.");
     }
   },
 
@@ -53,8 +59,10 @@ export const useRawMaterialRequestStore = create((set) => ({
       set((state) => ({
         requests: state.requests.filter((req) => req._id !== id),
       }));
+      toast.success("Request deleted successfully!");
     } catch (error) {
       console.error("Error deleting request:", error);
+      toast.error("Failed to delete request.");
     }
   },
 }));
