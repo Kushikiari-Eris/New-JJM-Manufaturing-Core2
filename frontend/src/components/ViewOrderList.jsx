@@ -25,7 +25,7 @@ const ViewOrderList = ({ orderId, onClose }) => {
     }
  
   return (
-    <>
+    <>  
     <div
       onClick={onClose}
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-auto"
@@ -148,7 +148,7 @@ const ViewOrderList = ({ orderId, onClose }) => {
                         strokeWidth="2"
                       />
                     </svg>
-                    <span>{order.user.email}</span>
+                    <span>{order.userEmail}</span>
                   </div>
                   <div className="mt-4">
                     <p className="font-medium">Shipping Address</p>
@@ -170,11 +170,17 @@ const ViewOrderList = ({ orderId, onClose }) => {
               {/* Confirm Button */}
               <div className="flex justify-center items-center">
                 <button
-                  onClick={handleConfirm}
-                  className="w-full py-3 text-lg font-semibold text-white bg-green-500 dark:bg-gray-700 rounded-lg hover:bg-green-600 dark:hover:bg-gray-600 transition"
-                >
-                  Confirm Order
-                </button>
+                    onClick={handleConfirm}
+                    disabled={order?.status === "Confirmed" || order?.status === "Canceled"}
+                    className={`w-full py-3 text-lg font-semibold text-white rounded-lg transition
+                      ${order?.status === "Confirmed" || order?.status === "Canceled" 
+                        ? "bg-gray-400 cursor-not-allowed" 
+                        : "bg-green-500 hover:bg-green-600"}
+                    `}
+                  >
+                    Confirm Order
+                  </button>
+
               </div>
             </div>
           </div>

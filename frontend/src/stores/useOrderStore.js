@@ -47,7 +47,14 @@ export const useOrderStore = create((set) => ({
     set({ loading: true, error: null });
     try {
       const res = await axios.get(`/orders/${id}`);
-      set({ order: res.data, loading: false });
+
+      // Check if user exists in the response
+      const populatedOrder = {
+        ...res.data,
+        userEmail: res.data.user?.email || "No email found",
+      };
+
+      set({ order: populatedOrder, loading: false });
     } catch (error) {
       set({ error: "Failed to fetch order", loading: false });
       toast.error("Failed to fetch order details.");

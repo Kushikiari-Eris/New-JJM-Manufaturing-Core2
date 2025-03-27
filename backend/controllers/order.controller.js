@@ -11,10 +11,10 @@ export const fetchAllOrder = async (req, res) => {
     }
 
     let orders;
-    if (userRole === "admin") {
+    if (userRole === "admin" || userRole === "superAdmin") {
       // Admin can fetch all orders
       orders = await Order.find()
-        .populate("user", "email")
+        .populate("user", "email name")
         .populate("products.product", "name image description");
     } else {
       // Regular users can only fetch their own orders
@@ -34,7 +34,7 @@ export const fetchAllOrder = async (req, res) => {
 export const fetchOrderById = async (req, res) => {
     try {
         const order = await Order.findById(req.params.id)
-          .populate("user", "email") // Fetch user and include only email
+          .populate("user", "email name") // Fetch user and include only email
           .populate("products.product", "name image description");
         if(!order) {
             return res.status(404).json({ message: "Order not found"})

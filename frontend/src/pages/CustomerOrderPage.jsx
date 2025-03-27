@@ -13,7 +13,7 @@ const CustomerOrderPage = () => {
 
     useEffect(() => {
         fetchAllOrder();
-    }, [fetchAllOrder]);
+    }, []);
 
     // First modal state
     const [isModalOpen, setIsModalOpen] = useState(false);

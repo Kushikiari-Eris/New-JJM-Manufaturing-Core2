@@ -11,6 +11,7 @@ const Navbar = () => {
   const isAdmin = user?.role === "admin";
   const isAudit = user?.role === "audit";
   const isAuditor = user?.role === "auditor";
+  const isSuperAdmin = user?.role === "superadmin";
   const { cart } = useCartStore();
   const { isCollapsed } = useSidebar();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -29,7 +30,7 @@ const Navbar = () => {
   return (
     <>
       {/* Navbar - Fixed at the top */}
-      <div className={`bg-white shadow p-4 fixed top-0 w-full z-50 ${isAuditor ? "bg-gradient-to-r from-green-400 via-green-500 to-green-700 " : ""}`}>
+      <div className={`bg-white shadow p-4 fixed top-0 w-full z-50 ${isAuditor ? "bg-white " : ""}`}>
         <nav className="flex justify-between items-center">
           {/* Logo - Adjusts with sidebar and remains centered on mobile */}
           {isAdmin ? (
@@ -56,12 +57,21 @@ const Navbar = () => {
           ) : isAuditor ? (
             <Link
               to="/auditorDashboard"
-               className={`text-2xl font-bold text-white flex items-center space-x-2 transition-all duration-300 ${
+               className={`text-2xl font-bold text-green-500 flex items-center space-x-2 transition-all duration-300 ${
                 isCollapsed ? "ml-16" : "ml-64"
               }`}
             >
               JJM AUDITOR
             </Link>
+          ) : isSuperAdmin ? (
+            <Link
+                to="/superAdminPage"
+              className={`text-2xl font-bold z-0 text-green-500 flex items-center space-x-2 transition-all duration-300 ${
+                isCollapsed ? "ml-16" : "ml-64"
+              }`}
+              >
+                JJM SUPER ADMIN
+              </Link>
           ) : (
             <Link
               to="/"
@@ -86,13 +96,13 @@ const Navbar = () => {
 
             {user ? (
               <>
-               {!isAdmin && !isAudit && !isAuditor && (
+               {!isAdmin && !isAudit && !isAuditor && !isSuperAdmin && (
                   <Link to="/" className="text-gray-600 hover:text-emerald-400 transition">
                     Home
                   </Link>
                 )}
 
-                {!isAdmin && !isAudit && !isAuditor && (
+                {!isAdmin && !isAudit && !isAuditor && !isSuperAdmin && (
                   <>
                   <Link to="/cart" className="relative group text-gray-600 hover:text-emerald-400 transition">
                     <ShoppingCart size={20} className="inline-block mr-1 group-hover:text-emerald-400" />
@@ -105,9 +115,6 @@ const Navbar = () => {
                   </Link>
                   </>
                 )}
-
-              
-                
 
                 {(isAdmin || isAudit) && <Notification />}
 
@@ -122,13 +129,13 @@ const Navbar = () => {
                   </div>
                   <ul
                     tabIndex={0}
-                    className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                    className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-60 p-2 shadow">
                       <div className="px-4 py-3">
                         <span className="block text-sm text-gray-900 dark:text-white">Name: {user.name}</span>
                         <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">Email: {user.email}</span>
                       </div>
                       <hr className="h-px mb-2 bg-gray-200 border-0 dark:bg-gray-700"></hr>
-                    {!isAdmin && !isAudit && !isAuditor &&
+                    {!isAdmin && !isAudit && !isAuditor && !isSuperAdmin &&
                     <li>
                       <a href="/purchasePage">My Purchase</a>
                     </li>
@@ -159,25 +166,25 @@ const Navbar = () => {
 
         {/* Mobile Menu - Shown When Open */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-4 flex flex-col bg-white shadow-lg p-4 absolute top-full right-0 w-full border-t">
-            {!isAdmin && !isAudit && !isAuditor && (
+          <div className="md:hidden mt-4 z-100 flex flex-col bg-white shadow-lg p-4 absolute top-full right-0 w-full border-t">
+            {!isAdmin && !isAudit && !isAuditor && !isSuperAdmin && user &&(
               <Link to="/" className="py-2 text-gray-600 hover:text-emerald-400 transition" onClick={() => setMobileMenuOpen(false)}>
                 Home
               </Link>
             )}
 
-            {!isAdmin && !isAudit && !isAuditor && user && (
+            {!isAdmin && !isAudit && !isAuditor && !isSuperAdmin && user && (
               <Link to="/cart" className="relative py-2 text-gray-600 hover:text-emerald-400 transition" onClick={() => setMobileMenuOpen(false)}>
                 <ShoppingCart size={20} className="inline-block mr-1 group-hover:text-emerald-400" />
                 Cart ({cart.length})
               </Link>
             )}
 
-            {!isAdmin && !isAudit && !isAuditor &&
+            {!isAdmin && !isAudit && !isAuditor && !isSuperAdmin && user && (
             <div className="py-2 text-gray-600 hover:text-emerald-400 transition">
               <a  href="/purchasePage" >My Purchase</a>
             </div>
-            }
+            )}
 
             {user ? (
               <button

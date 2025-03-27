@@ -60,8 +60,12 @@ export const useProductExecutionStore = create((set) => ({
         }
 
         // Fetch the raw material stock
-        const materialRes = await axios.get('/rawMaterial');
-        const availableStock = materialRes.data?.stock || 0;
+        const materialRes = await axios.get("/rawMaterial");
+        const allMaterials = materialRes.data; // Ensure you're accessing the correct data structure
+        const foundMaterial = allMaterials.find((m) => m._id === materialId);
+
+        const availableStock = foundMaterial ? foundMaterial.quantity : 0;
+
 
         console.log(
           `🔍 Checking Raw Material ID: ${materialId}, Required: ${quantity}, Available: ${availableStock}`
@@ -71,10 +75,13 @@ export const useProductExecutionStore = create((set) => ({
           console.error(
             `❌ Insufficient stock for Raw Material ID: ${materialId}`
           );
-          toast.error('Insufficient stock need to restock to proceed to production', {
-            position: "top-right",
-            autoClose: 3000,
-          });
+          toast.error(
+            `❌ Insufficient stock for Raw Material ID: ${materialId}`,
+            {
+              position: "top-right",
+              autoClose: 3000,
+            }
+          );
           return; // ❌ Stop production if any raw material is insufficient
         }
       }

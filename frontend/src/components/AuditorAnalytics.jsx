@@ -65,8 +65,8 @@ const AuditorAnalytics = () => {
       {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
         {/* Pie Chart - Task Status */}
-        <div className=" inset-0 bg-gradient-to-br from-emerald-500 to-emerald-800 p-6 rounded-lg shadow">
-          <h3 className="text-lg text-white font-semibold mb-2">Task Status Distribution</h3>
+        <div className=" inset-0 bg-white p-6 rounded-lg shadow">
+          <h3 className="text-lg text-gray-900 font-semibold mb-2">Task Status Distribution</h3>
           {statusCounts.length > 0 ? (
             <Chart
               options={{
@@ -74,16 +74,16 @@ const AuditorAnalytics = () => {
                 colors: ["#FFC107", "#8A2BE2", "#28A745", "#DC3545"], // Yellow, Purple, Green, Red
                 dataLabels: {
                   style: {
-                    colors: ["#FFFFFF"], // Makes data labels (inside pie chart) white
+                    colors: ["#000000"], // Makes data labels (inside pie chart) black
                   },
                 },
                 legend: {
                   labels: {
-                    colors: "#FFFFFF", // Makes legend text white
+                    colors: "#000000", // Makes legend text black
                   },
                 },
                 tooltip: {
-                  theme: "dark", // Ensures tooltips have a dark background
+                  theme: "light", // Ensures tooltips have a light background
                 },
               }}
               series={statusCounts}
@@ -91,40 +91,42 @@ const AuditorAnalytics = () => {
               height={300}
             />
 
+
           ) : (
             <p className="text-gray-500">No data available</p>
           )}
         </div>
 
         {/* Bar Chart - Department-wise Tasks */}
-        <div className="inset-0 bg-gradient-to-br from-emerald-500 to-emerald-800  p-6 rounded-lg shadow">
-          <h3 className="text-lg text-white font-semibold mb-2">Tasks by Department</h3>
+        <div className="inset-0 bg-white   p-6 rounded-lg shadow">
+          <h3 className="text-lg text-gray-900 font-semibold mb-2">Tasks by Department</h3>
           {departmentCounts.length > 0 ? (
             <Chart
               options={{
                 chart: { type: "bar" },
                 xaxis: { 
                   categories: departmentLabels, 
-                  labels: { style: { colors: "#FFFFFF" } } // X-axis labels white
+                  labels: { style: { colors: "#000000" } } // X-axis labels black
                 },
                 yaxis: { 
-                  labels: { style: { colors: "#FFFFFF" } } // Y-axis labels white
+                  labels: { style: { colors: "#000000" } } // Y-axis labels black
                 },
                 colors: ["#6366F1"], // Bar color
                 dataLabels: {
-                  style: { colors: ["#FFFFFF"] }, // Data labels white
+                  style: { colors: ["#000000"] }, // Data labels black
                 },
                 legend: {
-                  labels: { colors: "#FFFFFF" }, // Legend text white
+                  labels: { colors: "#000000" }, // Legend text black
                 },
                 tooltip: {
-                  theme: "dark", // Dark background for better visibility
+                  theme: "light", // Light background for better visibility
                 },
               }}
               series={[{ name: "Tasks", data: departmentCounts }]}
               type="bar"
               height={300}
             />
+
 
           ) : (
             <p className="text-gray-500">No data available</p>

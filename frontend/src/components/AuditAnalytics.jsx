@@ -59,7 +59,7 @@ const AuditAnalytics = () => {
   ];
 
   return (
-    <div className="p-6 min-h-screen text-white">
+    <div className="p-6 min-h-screen ">
       {/* Task Status Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {taskData.map(({ title, value, icon, color }) => (

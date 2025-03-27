@@ -12,13 +12,13 @@ import {
 
 const router = express.Router()
 
-router.get('/', protectRoute, adminRoute, getAllProducts)
+router.get('/', protectRoute, getAllProducts)
 router.get('/featured', getFeaturedProducts)
 router.get('/recommendations', getRecommendedProducts)
 router.get('/category/:category', getProductsByCategory)
-router.post('/', protectRoute, adminRoute, createProduct)
-router.put("/updateStock", protectRoute, adminRoute, updateStatus);
-router.patch('/:id', protectRoute, adminRoute, toggleFeaturedProduct)
-router.delete('/:id', protectRoute, adminRoute, deleteProduct)
+router.post('/', protectRoute, createProduct)
+router.put("/updateStock", protectRoute, updateStatus);
+router.patch('/:id', protectRoute, toggleFeaturedProduct)
+router.delete('/:id', protectRoute, deleteProduct)
 
 export default router
