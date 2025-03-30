@@ -11,7 +11,7 @@ export const fetchAllOrder = async (req, res) => {
     }
 
     let orders;
-    if (userRole === "admin" || userRole === "superAdmin") {
+    if (userRole === "admin" || userRole === "superadmin") {
       // Admin can fetch all orders
       orders = await Order.find()
         .populate("user", "email name")

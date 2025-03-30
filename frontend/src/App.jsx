@@ -41,6 +41,7 @@ import AuditInProgressTaskPage from "./pages/AuditInProgressTaskPage"
 import AuditCompletedTasksPage from "./pages/AuditCompletedTasksPage"
 import AuditReportsTasksPage from "./pages/AuditReportsTasksPage"
 import SuperAdminPage from "./pages/SuperAdminPage"
+import SchedulerPage from "./pages/SchedulerPage"
 
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
@@ -96,6 +97,7 @@ function App() {
             <Route path="/inventory" element={(user?.role === "admin" || user?.role === "superadmin") ? <InventoryPage /> : <Navigate to="/login" />} />
             <Route path="/maintenance" element={(user?.role === "admin" || user?.role === "superadmin") ? <MaintenancePage /> : <Navigate to="/login" />} />
             <Route path="/testing" element={(user?.role === "admin" || user?.role === "superadmin") ? <Testing /> : <Navigate to="/login" />} />
+            <Route path="/schedule" element={(user?.role === "admin" || user?.role === "superadmin") ? <SchedulerPage /> : <Navigate to="/login" />} />
 
             {/* Audit & superadmin Routes */}
             <Route path="/auditDashboard" element={(user?.role === "audit" || user?.role === "superadmin") ? <AuditDashboard /> : <Navigate to="/login" />} />
