@@ -453,7 +453,7 @@ const Sidebar = () => {
                             isCollapsed ? "hidden opacity-0 w-0" : "inline opacity-100 w-full"
                           }`}
                         >
-                        Profile
+                        Security
                       </span>
                     </a>
                 </li>

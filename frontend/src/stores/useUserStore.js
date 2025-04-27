@@ -158,6 +158,29 @@ export const useUserStore = create((set, get) => ({
     }
   },
 
+  updatePassword: async (currentPassword, newPassword) => {
+    set({ loading: true, error: null });
+    
+    try {
+      const response = await axios.put('/auth/update-password', {
+        currentPassword,
+        newPassword
+      });
+      
+      set({ loading: false });
+      toast.success("Password updated successfully");
+      return true;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Failed to update password";
+      set({ 
+        loading: false, 
+        error: errorMessage 
+      });
+      toast.error(errorMessage);
+      return false;
+    }
+  },
+
   checkAuth: async () => {
     set({ checkingAuth: true });
     try {

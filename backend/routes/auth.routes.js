@@ -8,7 +8,8 @@ import {
     setup2FA,
     verify2FA,
     disable2FA,
-    verify2FALogin
+    verify2FALogin,
+    updatePassword
 } from "../controllers/auth.controller.js"
 import { protectRoute } from "../middleware/auth.middleware.js"
 
@@ -21,6 +22,7 @@ router.post('/verify-2fa-login', verify2FALogin)
 router.post('/logout', logout)
 router.post('/refresh-token', refreshToken)
 router.get('/profile', protectRoute, getProfile)
+router.put("/update-password", protectRoute, updatePassword);
 
 // 2FA routes
 router.post('/setup-2fa', protectRoute, setup2FA)
