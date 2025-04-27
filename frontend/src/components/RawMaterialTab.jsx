@@ -44,14 +44,14 @@ const RawMaterialTab = () => {
                     <label htmlFor="table-search" className="sr-only">Search</label>
                     <div className="relative">
                         <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                            <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <svg className="w-4 h-4 text-gray-500 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                                 <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                             </svg>
                         </div>
                         <input 
                             type="text" 
                             id="table-search-users" 
-                            className="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                            className="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 " 
                             placeholder="Search for users" 
                         />
                     </div>
@@ -60,8 +60,8 @@ const RawMaterialTab = () => {
                     <p><LoadingSpinner/></p>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 ">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-50  ">
                                 <tr>
                                     <th scope="col" className="px-6 py-3">Materials</th>
                                     <th scope="col" className="px-6 py-3">Stocks</th>
@@ -70,7 +70,7 @@ const RawMaterialTab = () => {
                             <tbody>
                                 {paginatedRequests.length > 0 ? (
                                     paginatedRequests.map((material) => (
-                                        <tr key={material._id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                        <tr key={material._id} className="bg-white border-b  hover:bg-gray-50 ">
                                             <td className="px-6 py-4">{material.materialName}</td>
                                             <td className="px-6 py-4">{material.quantity} {material.unit}</td>
                                         </tr>
@@ -85,12 +85,12 @@ const RawMaterialTab = () => {
                             </tbody>
                     
                         </table>
-                        <div className="flex flex-wrap justify-center items-center space-x-2 py-4 bg-white dark:bg-gray-900 px-4 sm:px-6">
+                        <div className="flex flex-wrap justify-center items-center space-x-2 py-4 bg-white px-4 sm:px-6">
                         <button
-                            className={`px-4 py-2 rounded-md text-gray-600 dark:text-gray-300 transition-all duration-300 ${
+                            className={`px-4 py-2 rounded-md text-gray-600  transition-all duration-300 ${
                             currentPage === 1
                                 ? "opacity-50 cursor-not-allowed"
-                                : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                                : "hover:bg-gray-200 "
                             }`}
                             onClick={() => paginate(currentPage - 1)}
                             disabled={currentPage === 1}
@@ -105,7 +105,7 @@ const RawMaterialTab = () => {
                                     className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
                                     currentPage === index + 1
                                         ? "bg-blue-500 text-white"
-                                        : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                                        : "text-gray-700  hover:bg-gray-200 "
                                     }`}
                                     onClick={() => paginate(index + 1)}
                                 >
@@ -115,10 +115,10 @@ const RawMaterialTab = () => {
                             </div>
 
                             <button
-                                className={`px-4 py-2 rounded-md text-gray-600 dark:text-gray-300 transition-all duration-300 ${
+                                className={`px-4 py-2 rounded-md text-gray-600  transition-all duration-300 ${
                                 currentPage === totalPages
                                     ? "opacity-50 cursor-not-allowed"
-                                    : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                                    : "hover:bg-gray-200 "
                                 }`}
                                 onClick={() => paginate(currentPage + 1)}
                                 disabled={currentPage === totalPages}

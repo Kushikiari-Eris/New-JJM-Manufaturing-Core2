@@ -9,10 +9,9 @@ const InventoryTab = () => {
     const [activeTab, setActiveTab] = useState("tab1");
 
     const tabs = [
-        { id: "tab1", title: "Finish Product" },
-        { id: "tab2", title: "Raw Materials" },
-        { id: "tab3", title: "Request Raw Materials" },
-        { id: "tab4", title: "Requested Raw Materials" },
+        { id: "tab1", title: "Raw Materials" },
+        { id: "tab2", title: "Request Raw Materials" },
+        { id: "tab3", title: "Requested Raw Materials" },
     ];
   return (
     <>
@@ -21,7 +20,7 @@ const InventoryTab = () => {
             <li className="inline-flex items-center">
                 <a
                 href="/dashboard"
-                className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white"
+                className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 "
                 >
                 <svg
                     className="w-3 h-3 me-2.5"
@@ -52,7 +51,7 @@ const InventoryTab = () => {
                     d="m1 9 4-4-4-4"
                     />
                 </svg>
-                <span className="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
+                <span className="ms-1 text-sm font-medium text-gray-500 md:ms-2 ">
                     Inventory
                 </span>
                 </div>
@@ -83,17 +82,6 @@ const InventoryTab = () => {
                 <AnimatePresence mode="wait">
                     {activeTab === "tab1" && (
                         <motion.div
-                            key="tab1"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <FinishProductTable/>
-                        </motion.div>
-                    )}
-                    {activeTab === "tab2" && (
-                        <motion.div
                             key="tab2"
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -103,7 +91,7 @@ const InventoryTab = () => {
                             <RawMaterialTab/>
                         </motion.div>
                     )}
-                    {activeTab === "tab3" && (
+                    {activeTab === "tab2" && (
                         <motion.div
                         key="tab3"
                         initial={{ opacity: 0, y: 10 }}
@@ -114,7 +102,7 @@ const InventoryTab = () => {
                             <RawMaterialRequestForm/>
                         </motion.div>
                     )}
-                    {activeTab === "tab4" && (
+                    {activeTab === "tab3" && (
                         <motion.div
                             key="tab4"
                             initial={{ opacity: 0, y: 10 }}

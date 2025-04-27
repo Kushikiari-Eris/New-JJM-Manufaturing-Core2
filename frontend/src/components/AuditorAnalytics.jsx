@@ -52,7 +52,7 @@ const AuditorAnalytics = () => {
   const totalTasks = statusCounts.reduce((acc, curr) => acc + curr, 0);
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gray-100 ">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
         <AnalyticsCard title="Total Tasks" value={totalTasks} icon={FaTasks} color="border-blue-500" />

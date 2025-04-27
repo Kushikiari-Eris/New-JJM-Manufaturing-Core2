@@ -87,7 +87,7 @@ const AnalyticsTab = () => {
 	return (
 		<>
 		<div className='max-w-8xl mx-auto px-4 sm:px-6 mt-10 lg:px-8'>
-			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-4'>
+			<div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-4'>
 				<AnalyticsCard
 					title='Total Users'
 					value={analyticsData.users.toLocaleString()}
@@ -128,21 +128,6 @@ const AnalyticsTab = () => {
 					value={analyticsData.products.toLocaleString()}
 					icon={TrendingUp}
 					color="from-blue-500 to-indigo-700"
-				/>
-
-				<AnalyticsCard
-				title="Total Maintenance"
-				value={maintenanceAnalytics.totalMaintenance}
-				icon={FaChartBar}
-				color="from-emerald-500 to-lime-700"
-				/>
-				<AnalyticsCard
-				title="Completed Maintenance Tasks"
-				value={
-					maintenanceAnalytics.statusCounts.find((s) => s._id === "Completed")?.count || 0
-				}
-				icon={FaCheckCircle}
-				color="from-emerald-500 to-lime-700"
 				/>
 
 			</div>
@@ -270,44 +255,6 @@ const AnalyticsTab = () => {
 				}}
 				series={statusCounts.map(s => s.count)}
 				type="donut"
-				height={300}
-			/>
-			</motion.div>
-
-			<motion.div
-			className="bg-white rounded-lg p-4 shadow-md"
-			initial={{ opacity: 0, y: 10 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.4, delay: 0.2 }}
-			>
-			<h3 className="text-lg flex justify-center font-semibold mb-3">Status Breakdown</h3>
-			<Chart
-				options={statusChartOptions}
-				series={[{
-				name: "Count",
-				data: maintenanceAnalytics.statusCounts.map(({ count }) => count),
-				}]}
-				type="line"
-				height={300}
-			/>
-			</motion.div>
-
-			<motion.div
-			className="bg-white rounded-lg p-4 shadow-md"
-			initial={{ opacity: 0, y: 10 }}
-			animate={{ opacity: 1, y: 0 }}
-			transition={{ duration: 0.4, delay: 0.2 }}
-			>
-			<h3 className="text-lg flex justify-center font-semibold mb-3">Type Breakdown</h3>
-			<Chart
-				options={typeChartOptions}
-				series={[
-				{
-					name: "Count",
-					data: maintenanceAnalytics.typeCounts.map(({ count }) => count),
-				},
-				]}
-				type="area"
 				height={300}
 			/>
 			</motion.div>

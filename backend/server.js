@@ -56,6 +56,14 @@ import executionAnlytics from './routes/executionAnalytics.routes.js'
 import inventoryAnalytics from './routes/inventoryAnalytics.routes.js'
 import maintenanceAnalytics from './routes/maintenanceAnalytics.routes.js'
 import scheduleRoutes from './routes/schedule.routes.js'
+import predictiveRoutes from './routes/predictive.routes.js'
+import predictiveOrderRoutes from './routes/predictiveOrder.routes.js'
+import departmentRoutes from './routes/department.routes.js'
+import findingsRoutes from './routes/findings.routes.js'
+import auditRoutes from './routes/audit.routes.js'
+import documentRoutes from './routes/document.routes.js'
+import taskRoutes from './routes/task.routes.js'
+import auditScheduleRoutes from './routes/auditSchedule.routes.js'
 
 
 dotenv.config()
@@ -185,6 +193,14 @@ app.use("/api/executionAnlytics", executionAnlytics);
 app.use("/api/inventoryAnalytics", inventoryAnalytics);
 app.use("/api/maintenanceAnalytics", maintenanceAnalytics);
 app.use("/api/schedule", scheduleRoutes);
+app.use("/api/predictive", predictiveRoutes);
+app.use("/api/predictiveOrder", predictiveOrderRoutes)
+app.use("/api/departments", departmentRoutes)
+app.use("/api/findings", findingsRoutes)
+app.use("/api/audit", auditRoutes)
+app.use("/api/document", documentRoutes)
+app.use("/api/task", taskRoutes)
+app.use("/api/auditSchedule", auditScheduleRoutes)
 
 
 app.use("/api/testing", testing)

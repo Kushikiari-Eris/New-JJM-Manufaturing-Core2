@@ -20,30 +20,18 @@ export const createProductExecution = async (req, res) => {
 // Get all Product Executions
 export const getAllProductExecutions = async (req, res) => {
   try {
-    // Fetch product executions from local database
+    // Fetch product executions from local database only
     const executions = await ProductExecution.find();
 
-    // Generate API Gateway Token
-    const token = gatewayTokenGenerator();
-
-    // Fetch work orders from the external API
-    const response = await axios.get(
-      `${process.env.API_GATEWAY_URL}/core1/api/workOrders`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    // Combine local executions with external work orders
     res.status(200).json({
       executions,
-      workOrders: response.data,
     });
   } catch (error) {
-    console.error("Error fetching data:", error);
+    console.error("Error fetching product executions:", error);
     res.status(500).json({ error: error.message });
   }
 };
+
 
 
 // Start Production: Set status to "In Progress" and schedule completion

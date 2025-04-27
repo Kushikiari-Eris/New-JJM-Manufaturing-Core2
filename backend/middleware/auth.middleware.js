@@ -75,4 +75,34 @@ export const adminRoute = async ( req, res, next ) =>{
     } else{
         return res.status(403).json({ message: "Access denied - Admin only"})
     }
-}
+};
+
+export const require2FA = async (req, res, next) => {
+  try {
+    // User object is already attached by the protectRoute middleware
+    const userId = req.user._id;
+    
+    // Check if user has 2FA enabled
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(401).json({ message: "Unauthorized - User not found" });
+    }
+    
+    if (!user.twoFactorEnabled) {
+      return res.status(403).json({
+        message: "Access denied - Two-factor authentication required",
+        requiresTwoFactor: true
+      });
+    }
+    
+    // If 2FA is enabled, allow access
+    next();
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server error when checking 2FA status",
+      error: error.message
+    });
+  }
+};
+

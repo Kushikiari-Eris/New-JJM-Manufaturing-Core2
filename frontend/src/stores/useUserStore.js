@@ -6,6 +6,8 @@ export const useUserStore = create((set, get) => ({
   user: null,
   loading: false,
   checkingAuth: true,
+  twoFactorRequired: false,
+  twoFactorUserId: null,
 
   signup: async ({ name, email, password, confirmPassword }) => {
     set({ loading: true });
@@ -18,28 +20,135 @@ export const useUserStore = create((set, get) => ({
     try {
       const res = await axios.post("/auth/signup", { name, email, password });
       set({ user: res.data, loading: false });
+      toast.success("Account created successfully!");
     } catch (error) {
       set({ loading: false });
-      toast.error(error.response.data.message || "An error occurred");
+      toast.error(error.response?.data?.message || "An error occurred");
     }
   },
-  login: async (email, password) => {
+
+  login: async (email, password, twoFactorToken = null) => {
     set({ loading: true });
 
     try {
-      const res = await axios.post("/auth/login", { email, password });
+      const res = await axios.post("/auth/login", { 
+        email, 
+        password,
+        twoFactorToken 
+      });
 
-      set({ user: res.data, loading: false });
+      // Check if 2FA is required
+      if (res.data.requireTwoFactor) {
+        set({ 
+          loading: false, 
+          twoFactorRequired: true,
+          twoFactorUserId: res.data.userId
+        });
+        toast.info(res.data.message || "Please enter your 2FA code");
+        return;
+      }
+
+      set({ 
+        user: res.data, 
+        loading: false,
+        twoFactorRequired: false,
+        twoFactorUserId: null 
+      });
+      toast.success("Logged in successfully!");
     } catch (error) {
       set({ loading: false });
-      toast.error(error.response.data.message || "An error occurred");
+      toast.error(error.response?.data?.message || "An error occurred");
+    }
+  },
+
+  verify2FALogin: async (twoFactorToken) => {
+    set({ loading: true });
+    const userId = get().twoFactorUserId;
+
+    try {
+      const res = await axios.post("/auth/verify-2fa-login", {
+        userId,
+        twoFactorToken
+      });
+
+      set({ 
+        user: res.data, 
+        loading: false,
+        twoFactorRequired: false,
+        twoFactorUserId: null
+      });
+      toast.success("Authentication successful!");
+    } catch (error) {
+      set({ loading: false });
+      toast.error(error.response?.data?.message || "Invalid verification code");
+    }
+  },
+
+  clearTwoFactorState: () => {
+    set({
+      twoFactorRequired: false,
+      twoFactorUserId: null
+    });
+  },
+
+  setup2FA: async () => {
+    set({ loading: true });
+    try {
+      const res = await axios.post("/auth/setup-2fa");
+      set({ loading: false });
+      return res.data;
+    } catch (error) {
+      set({ loading: false });
+      toast.error(error.response?.data?.message || "Failed to setup 2FA");
+      return null;
+    }
+  },
+
+  verify2FA: async (token) => {
+    set({ loading: true });
+    try {
+      const res = await axios.post("/auth/verify-2fa", { token });
+      
+      // Update user with 2FA enabled
+      const updatedUser = { ...get().user, twoFactorEnabled: true };
+      set({ user: updatedUser, loading: false });
+      
+      toast.success("Two-factor authentication enabled!");
+      return true;
+    } catch (error) {
+      set({ loading: false });
+      toast.error(error.response?.data?.message || "Invalid verification code");
+      return false;
+    }
+  },
+
+  disable2FA: async (token) => {
+    set({ loading: true });
+    try {
+      const res = await axios.post("/auth/disable-2fa", { token });
+      
+      // Update user with 2FA disabled
+      const updatedUser = { ...get().user, twoFactorEnabled: false };
+      set({ user: updatedUser, loading: false });
+      
+      toast.success("Two-factor authentication disabled!");
+      return true;
+    } catch (error) {
+      set({ loading: false });
+      toast.error(error.response?.data?.message || "Invalid verification code");
+      return false;
     }
   },
 
   logout: async () => {
     try {
       await axios.post("/auth/logout");
-      set({ user: null });
+      set({ 
+        user: null,
+        twoFactorRequired: false,
+        twoFactorUserId: null
+      });
+      toast.success("Logged out successfully");
       return Promise.resolve(); 
     } catch (error) {
       toast.error(
@@ -76,37 +185,39 @@ export const useUserStore = create((set, get) => ({
   },
 }));
 
-// TODO: Implement the axios interceptors for refreshing access token
-
 // Axios interceptor for token refresh
 let refreshPromise = null;
 
 axios.interceptors.response.use(
-	(response) => response,
-	async (error) => {
-		const originalRequest = error.config;
-		if (error.response?.status === 401 && !originalRequest._retry) {
-			originalRequest._retry = true;
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // Handle token expiration
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
 
-			try {
-				// If a refresh is already in progress, wait for it to complete
-				if (refreshPromise) {
-					await refreshPromise;
-					return axios(originalRequest);
-				}
+      try {
+        // If a refresh is already in progress, wait for it to complete
+        if (refreshPromise) {
+          await refreshPromise;
+          return axios(originalRequest);
+        }
 
-				// Start a new refresh process
-				refreshPromise = useUserStore.getState().refreshToken();
-				await refreshPromise;
-				refreshPromise = null;
+        // Start a new refresh process
+        refreshPromise = useUserStore.getState().refreshToken();
+        await refreshPromise;
+        refreshPromise = null;
 
-				return axios(originalRequest);
-			} catch (refreshError) {
-				// If refresh fails, redirect to login or handle as needed
-				useUserStore.getState().logout();
-				return Promise.reject(refreshError);
-			}
-		}
-		return Promise.reject(error);
-	}
+        return axios(originalRequest);
+      } catch (refreshError) {
+        // If refresh fails, redirect to login or handle as needed
+        useUserStore.getState().logout();
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  }
 );
+
+export default useUserStore;

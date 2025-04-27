@@ -42,6 +42,15 @@ import AuditCompletedTasksPage from "./pages/AuditCompletedTasksPage"
 import AuditReportsTasksPage from "./pages/AuditReportsTasksPage"
 import SuperAdminPage from "./pages/SuperAdminPage"
 import SchedulerPage from "./pages/SchedulerPage"
+import FinishProductPage from "./pages/FinishProductPage"
+import DataInputPage from "./pages/DataInputPage"
+import ModelTrainingPage from "./pages/ModelTrainingPage"
+import PredictionPage from "./pages/PredictionPage"
+import DataTablePage from "./pages/DataTablePage"
+import PredictiveAnalyticsPage from "./pages/PredictiveAnalyticsPage"
+import AuditDashboard1 from "./pages/AuditDashboard1"
+import AuditScheduleListPage from "./pages/AuditScheduleListPage"
+import SecuritySettingPage from "./pages/SecuritySettingsPage"
 
 function App() {
   const { user, checkAuth, checkingAuth } = useUserStore();
@@ -98,9 +107,19 @@ function App() {
             <Route path="/maintenance" element={(user?.role === "admin" || user?.role === "superadmin") ? <MaintenancePage /> : <Navigate to="/login" />} />
             <Route path="/testing" element={(user?.role === "admin" || user?.role === "superadmin") ? <Testing /> : <Navigate to="/login" />} />
             <Route path="/schedule" element={(user?.role === "admin" || user?.role === "superadmin") ? <SchedulerPage /> : <Navigate to="/login" />} />
+            <Route path="/finish-product" element={(user?.role === "admin" || user?.role === "superadmin") ? <FinishProductPage /> : <Navigate to="/login" />} />
+            <Route path="/audit-schedule" element={(user?.role === "admin" || user?.role === "superadmin") ? <AuditScheduleListPage /> : <Navigate to="/login" />} />
+            <Route path="/profile" element={(user?.role === "admin" || user?.role === "superadmin") ? <SecuritySettingPage /> : <Navigate to="/login" />} />
+
+            <Route path="/data-input" element={(user?.role === "admin" || user?.role === "superadmin") ? <DataInputPage /> : <Navigate to="/login" />} />
+            <Route path="/model-training" element={(user?.role === "admin" || user?.role === "superadmin") ? <ModelTrainingPage /> : <Navigate to="/login" />} />
+            <Route path="/prediction" element={(user?.role === "admin" || user?.role === "superadmin") ? <PredictionPage /> : <Navigate to="/login" />} />
+            <Route path="/data-table" element={(user?.role === "admin" || user?.role === "superadmin") ? <DataTablePage /> : <Navigate to="/login" />} />
+            <Route path="/predictive-analytics" element={(user?.role === "admin" || user?.role === "superadmin") ? <PredictiveAnalyticsPage /> : <Navigate to="/login" />} />
 
             {/* Audit & superadmin Routes */}
             <Route path="/auditDashboard" element={(user?.role === "audit" || user?.role === "superadmin") ? <AuditDashboard /> : <Navigate to="/login" />} />
+            <Route path="/auditDashboard1" element={(user?.role === "audit" || user?.role === "superadmin") ? <AuditDashboard1 /> : <Navigate to="/login" />} />
             <Route path="/auditRequestHr" element={(user?.role === "audit" || user?.role === "superadmin") ? <AuditHrRequestPage /> : <Navigate to="/login" />} />
             <Route path="/auditRequestAdmin" element={(user?.role === "audit" || user?.role === "superadmin") ? <AuditRequestAdminPage /> : <Navigate to="/login" />} />
             <Route path="/auditRequestFinance" element={(user?.role === "audit" || user?.role === "superadmin") ? <AuditRequestFinancePage /> : <Navigate to="/login" />} />

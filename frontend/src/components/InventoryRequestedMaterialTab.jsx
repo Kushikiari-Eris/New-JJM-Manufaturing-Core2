@@ -174,12 +174,12 @@ const handleApprove = async (audit) => {
                 )}
               </tbody>
             </table>
-             <div className="flex flex-wrap justify-center items-center space-x-2 py-4 bg-white dark:bg-gray-900 px-4 sm:px-6">
+             <div className="flex flex-wrap justify-center items-center space-x-2 py-4 bg-white px-4 sm:px-6">
                 <button
-                    className={`px-4 py-2 rounded-md text-gray-600 dark:text-gray-300 transition-all duration-300 ${
+                    className={`px-4 py-2 rounded-md text-gray-600  transition-all duration-300 ${
                     currentPage === 1
                         ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                        : "hover:bg-gray-200 "
                     }`}
                     onClick={() => paginate(currentPage - 1)}
                     disabled={currentPage === 1}
@@ -194,7 +194,7 @@ const handleApprove = async (audit) => {
                         className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
                         currentPage === index + 1
                             ? "bg-blue-500 text-white"
-                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+                            : "text-gray-700  hover:bg-gray-200 "
                         }`}
                         onClick={() => paginate(index + 1)}
                     >
@@ -204,10 +204,10 @@ const handleApprove = async (audit) => {
                 </div>
 
                 <button
-                    className={`px-4 py-2 rounded-md text-gray-600 dark:text-gray-300 transition-all duration-300 ${
+                    className={`px-4 py-2 rounded-md text-gray-600  transition-all duration-300 ${
                     currentPage === totalPages
                         ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                        : "hover:bg-gray-200 "
                     }`}
                     onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === totalPages}

@@ -131,10 +131,10 @@ const Navbar = () => {
                     tabIndex={0}
                     className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-60 p-2 shadow">
                       <div className="px-4 py-3">
-                        <span className="block text-sm text-gray-900 dark:text-white">Name: {user.name}</span>
-                        <span className="block text-sm  text-gray-500 truncate dark:text-gray-400">Email: {user.email}</span>
+                        <span className="block text-sm text-gray-900 ">Name: {user.name}</span>
+                        <span className="block text-sm  text-gray-500 truncate ">Email: {user.email}</span>
                       </div>
-                      <hr className="h-px mb-2 bg-gray-200 border-0 dark:bg-gray-700"></hr>
+                      <hr className="h-px mb-2 bg-gray-200 border-0 "></hr>
                     {!isAdmin && !isAudit && !isAuditor && !isSuperAdmin &&
                     <li>
                       <a href="/purchasePage">My Purchase</a>
