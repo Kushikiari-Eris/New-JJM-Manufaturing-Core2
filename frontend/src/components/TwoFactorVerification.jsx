@@ -17,7 +17,7 @@ const TwoFactorVerification = () => {
 
   return (
     <div className="card bg-base-100 w-full max-w-sm shadow-2xl p-6">
-      <h2 className="text-2xl font-bold text-center mb-4">Two-Factor Authentication</h2>
+      <h2 className="text-2xl font-bold text-center mb-4">Authentication</h2>
       <p className="text-sm text-gray-600 mb-6 text-center">
         Please enter the verification code from your authenticator app
       </p>
